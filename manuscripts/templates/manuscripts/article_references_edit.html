@@ -1,0 +1,92 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+
+{% block titletag %}{% trans "Edit references and citations" %}: {{ article }}{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title="Edit references and citations" subtitle=article icon="link" %}
+
+  <div class="nice-padding">
+    <section style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; border: 1px solid var(--color-border, #ddd); border-radius: 6px; background: var(--color-surface-menus, #f9f9f9);">
+      <h2 style="margin-top: 0;">{% trans "Article actions" %}</h2>
+      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+        <a class="button button-secondary" href="{% url 'wagtailsnippets_manuscripts_article:inspect' article.pk %}">{% trans "Back to inspection" %}</a>
+        <a class="button button-secondary" href="{% url 'manuscripts:article_structure_edit' article.pk %}">{% trans "Edit structure" %}</a>
+      </div>
+      <p style="margin: 0.75rem 0 0;">
+        {% blocktrans with version=structure.version refs=references|length cits=citations|length %}Structure v{{ version }}: {{ refs }} references and {{ cits }} citation occurrences.{% endblocktrans %}
+      </p>
+    </section>
+
+    <h2>{% trans "References" %}</h2>
+    <table class="listing">
+      <thead>
+        <tr>
+          <th style="width: 6rem;">ID</th>
+          <th>{% trans "Reference" %}</th>
+          <th style="width: 14rem;">{% trans "Global base" %}</th>
+          <th style="width: 28rem;">{% trans "Interpretation" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ref in references %}
+          <tr>
+            <td>{{ ref.ref_id }}</td>
+            <td>{{ ref.mixed_citation }}</td>
+            <td>{{ ref.reference.get_status_display }}</td>
+            <td>
+              {% if ref.reference.element_citation.exists %}
+                <form method="post" action="{% url 'manuscripts:article_reference_select' ref.pk %}" style="display: grid; grid-template-columns: minmax(12rem, 1fr) auto; gap: 0.5rem; align-items: center;">
+                  {% csrf_token %}
+                  <select name="selected_element" style="width: 100%; max-width: 100%;">
+                    <option value="">---</option>
+                    {% for candidate in ref.reference.element_citation.all %}
+                      <option value="{{ candidate.pk }}" {% if ref.selected_element_id == candidate.pk %}selected{% endif %}>{{ candidate.marked }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="button" type="submit" style="display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; padding: 0.45rem 0.9rem; line-height: 1;">{% trans "Select" %}</button>
+                </form>
+              {% else %}
+                <span style="color: var(--color-text-meta, #666);">{% trans "No candidates" %}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">{% trans "No references." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 style="margin-top: 2rem;">{% trans "Citations" %}</h2>
+    <table class="listing">
+      <thead>
+        <tr>
+          <th>{% trans "Citation" %}</th>
+          <th style="width: 10rem;">{% trans "Status" %}</th>
+          <th style="width: 36rem;">{% trans "Linked references" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for citation in citations %}
+          <tr>
+            <td>{{ citation.text }}</td>
+            <td>{{ citation.get_status_display }}</td>
+            <td>
+              <form method="post" action="{% url 'manuscripts:citation_update' citation.pk %}" style="display: grid; grid-template-columns: minmax(18rem, 1fr); gap: 0.5rem; align-items: start;">
+                {% csrf_token %}
+                <select name="references" multiple size="5" style="width: 100%; max-width: 100%;">
+                  {% for ref in references %}
+                    <option value="{{ ref.pk }}" {% if ref in citation.references.all %}selected{% endif %}>{{ ref.ref_id }} - {{ ref.mixed_citation|truncatechars:120 }}</option>
+                  {% endfor %}
+                </select>
+                <button class="button" type="submit" style="display: inline-flex; align-items: center; justify-content: center; justify-self: start; min-height: 2.25rem; padding: 0.45rem 0.9rem; line-height: 1;">{% trans "Update link" %}</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3">{% trans "No occurrences." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

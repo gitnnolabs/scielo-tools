@@ -1,0 +1,130 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+{% block titletag %}{% trans "Edit structure" %}: {{ article }}{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  {{ form.media.css }}
+  <style>
+    .structure-version-history { margin-top: 2rem; }
+    .structure-version-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .structure-version-actions form { margin: 0; }
+    .structure-field-panel {
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--color-border, #ddd);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      background: #fff;
+    }
+    .structure-field-panel summary {
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.25rem 0;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .structure-field-panel summary::-webkit-details-marker {
+      display: none;
+    }
+    .structure-field-panel summary::before {
+      content: "▶";
+      font-size: 0.7rem;
+      transition: transform 0.15s;
+      color: var(--color-primary, #007d7e);
+    }
+    .structure-field-panel[open] summary::before {
+      content: "▼";
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  {{ form.media.js }}
+{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title="Edit article structure" icon="edit" %}
+  <div class="nice-padding">
+    {% if is_historical_version %}
+      <div class="help-block help-warning" style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-left: 4px solid #d97706; background-color: rgba(217, 119, 6, 0.05); color: #92400e;">
+        {% blocktrans with version=structure.version current_version=current_structure.version %}You are editing a historical version (v{{ version }}). The current version is v{{ current_version }}. Saving will create a new version from this content.{% endblocktrans %}
+      </div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.media }}
+      {% for field in form %}
+        <details class="structure-field-panel">
+          <summary>{{ field.label }}</summary>
+          <div style="margin-top:0.25rem">{{ field }}</div>
+        </details>
+      {% endfor %}
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-top:1rem;padding:0.75rem 1rem;border:1px solid var(--color-border,#ddd);border-radius:6px;background:var(--color-surface-menus,#f9f9f9)">
+        <button class="button button-longrunning" type="submit">{% trans "Save new version" %}</button>
+        {% if xml_artifact %}
+          <a class="button button-secondary" href="{% url 'manuscripts:artifact_preview' xml_artifact.pk %}" target="_blank">{% trans "View current XML" %}</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div class="nice-padding">
+    <section class="structure-version-history">
+      <h2>{% trans "Version history" %}</h2>
+      <table class="listing">
+        <thead>
+          <tr>
+            <th>{% trans "Version" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Origin" %}</th>
+            <th>{% trans "Created at" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for version_item in versions %}
+            <tr>
+              <td>v{{ version_item.version }}</td>
+              <td>
+                {% if version_item.is_current %}
+                  {% trans "Current" %}
+                {% else %}
+                  {% trans "Historical" %}
+                {% endif %}
+              </td>
+              <td>{{ version_item.get_source_kind_display }}</td>
+              <td>{{ version_item.created|date:"SHORT_DATETIME_FORMAT" }}</td>
+              <td>
+                <div class="structure-version-actions">
+                  <a class="button button-secondary button-small" href="{% url 'manuscripts:article_structure_edit' article.pk %}?version={{ version_item.version }}">
+                    {% trans "Load in editor" %}
+                  </a>
+                  {% if not version_item.is_current %}
+                    <form method="post" action="{% url 'manuscripts:article_structure_revert' article.pk version_item.version %}">
+                      {% csrf_token %}
+                      <button class="button button-small" type="submit" onclick="return confirm('{% blocktrans with version=version_item.version %}Revert to version {{ version }}? A new version will be created.{% endblocktrans %}')">
+                        {% trans "Revert to this version" %}
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">{% trans "No structural version recorded." %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+{% endblock %}

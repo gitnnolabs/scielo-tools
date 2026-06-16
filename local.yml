@@ -1,0 +1,78 @@
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE:-./compose/local/django/Dockerfile}
+      args:
+        BUILD_ENVIRONMENT: local
+    image: scielo_tools_local_django
+    container_name: scielo_tools_local_django
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
+    volumes:
+      - .:/app:z
+      # - ../packtools:/packtools:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "8009:8000"
+    command: /start
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    container_name: scielo_tools_local_mailhog
+    ports:
+      - "8029:8025"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: scielo_tools_local_postgres
+    container_name: scielo_tools_local_postgres
+    volumes:
+      - ../scms_data/scielo_tools/data_dev:/var/lib/postgresql:Z
+      - ../scms_data/scielo_tools/data_dev_backup:/backups:z
+    ports:
+      - "5439:5432"
+    env_file:
+      - ./.envs/.local/.postgres
+
+  redis:
+    image: redis:8
+    container_name: scielo_tools_local_redis
+    ports:
+      - "6399:6379"
+
+  celeryworker:
+    <<: *django
+    image: scielo_tools_local_celeryworker
+    container_name: scielo_tools_local_celeryworker
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: scielo_tools_local_celerybeat
+    container_name: scielo_tools_local_celerybeat
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: scielo_tools_local_flower
+    container_name: scielo_tools_local_flower
+    ports:
+      - "5559:5555"
+    command: /start-flower

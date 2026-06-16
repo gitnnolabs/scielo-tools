@@ -1,0 +1,1372 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-24 13:56+0000\n"
+"PO-Revision-Date: 2025-10-27 HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+
+#: core/choices.py:192
+msgid "Editor-Chefe"
+msgstr "Editor en Jefe"
+
+#: core/choices.py:193
+msgid "Editor(es) Executivo"
+msgstr "Editor(es) Ejecutivo"
+
+#: core/choices.py:194
+msgid "Editor(es) Associados ou de Seção"
+msgstr "Editor(es) Asociados o de Sección"
+
+#: core/choices.py:195
+msgid "Equipe Técnica"
+msgstr "Equipo Técnico"
+
+#: core/choices.py:199
+msgid "January"
+msgstr "Enero"
+
+#: core/choices.py:200
+msgid "February"
+msgstr "Febrero"
+
+#: core/choices.py:201
+msgid "March"
+msgstr "Marzo"
+
+#: core/choices.py:202
+msgid "April"
+msgstr "Abril"
+
+#: core/choices.py:203
+msgid "May"
+msgstr "Mayo"
+
+#: core/choices.py:204
+msgid "June"
+msgstr "Junio"
+
+#: core/choices.py:205
+msgid "July"
+msgstr "Julio"
+
+#: core/choices.py:206
+msgid "August"
+msgstr "Agosto"
+
+#: core/choices.py:207
+msgid "September"
+msgstr "Septiembre"
+
+#: core/choices.py:208
+msgid "October"
+msgstr "Octubre"
+
+#: core/choices.py:209
+msgid "November"
+msgstr "Noviembre"
+
+#: core/choices.py:210
+msgid "December"
+msgstr "Diciembre"
+
+#: core/choices.py:216
+msgid "by"
+msgstr "por"
+
+#: core/choices.py:217
+msgid "by-sa"
+msgstr "by-sa"
+
+#: core/choices.py:218
+msgid "by-nc"
+msgstr "by-nc"
+
+#: core/choices.py:219
+msgid "by-nc-sa"
+msgstr "by-nc-sa"
+
+#: core/choices.py:220
+msgid "by-nd"
+msgstr "by-nd"
+
+#: core/choices.py:221
+msgid "by-nc-nd"
+msgstr "by-nc-nd"
+
+#: core/choices.py:225
+msgid "Male"
+msgstr "Masculino"
+
+#: core/choices.py:226
+msgid "Female"
+msgstr "Femenino"
+
+#: core/home/templates/home/welcome_page.html:6
+msgid "Visit the Wagtail website"
+msgstr "Visita el sitio web de Wagtail"
+
+#: core/home/templates/home/welcome_page.html:15
+msgid "View the release notes"
+msgstr "Ver las notas de lanzamiento"
+
+#: core/home/templates/home/welcome_page.html:27
+msgid "Welcome to your new Wagtail site!"
+msgstr "¡Bienvenido a tu nuevo sitio Wagtail!"
+
+#: core/home/templates/home/welcome_page.html:35
+msgid "Wagtail Documentation"
+msgstr "Documentación de Wagtail"
+
+#: core/home/templates/home/welcome_page.html:36
+msgid "Topics, references, & how-tos"
+msgstr "Temas, referencias y guías prácticas"
+
+#: core/home/templates/home/welcome_page.html:42
+msgid "Tutorial"
+msgstr "Tutorial"
+
+#: core/home/templates/home/welcome_page.html:43
+msgid "Build your first Wagtail site"
+msgstr "Construye tu primer sitio Wagtail"
+
+#: core/home/templates/home/welcome_page.html:49
+msgid "Admin Interface"
+msgstr "Interfaz de Administración"
+
+#: core/home/templates/home/welcome_page.html:50
+msgid "Create your superuser first!"
+msgstr "¡Crea tu superusuario primero!"
+
+#: core/models.py:28 tracker/models.py:76
+msgid "Creation date"
+msgstr "Fecha de creación"
+
+#: core/models.py:31
+msgid "Last update date"
+msgstr "Fecha de última actualización"
+
+#: core/models.py:36
+msgid "Creator"
+msgstr "Creador"
+
+#: core/models.py:46
+msgid "Updater"
+msgstr "Actualizador"
+
+#: core/models.py:66
+msgid "Code"
+msgstr "Código"
+
+#: core/models.py:68
+msgid "Sex"
+msgstr "Sexo"
+
+#: core/models.py:133
+msgid "Language Name"
+msgstr "Nombre del Idioma"
+
+#: core/models.py:134
+msgid "Language code 2"
+msgstr "Código de idioma 2"
+
+#: core/models.py:142 core/models.py:190 core/models.py:207 core/models.py:251
+#: core/models.py:523 markup_doc/models.py:357 xml_manager/models.py:58
+#: xml_manager/models.py:90
+msgid "Language"
+msgstr "Idioma"
+
+#: core/models.py:143
+msgid "Languages"
+msgstr "Idiomas"
+
+#: core/models.py:186 markup_doc/models.py:129
+msgid "Text"
+msgstr "Texto"
+
+#: core/models.py:202 core/models.py:247
+msgid "Rich Text"
+msgstr "Texto Enriquecido"
+
+#: core/models.py:203
+msgid "Plain Text"
+msgstr "Texto Plano"
+
+#: core/models.py:268
+msgid "Year"
+msgstr "Año"
+
+#: core/models.py:269
+msgid "Month"
+msgstr "Mes"
+
+#: core/models.py:270 django_celery_beat/choices.py:18
+msgid "Day"
+msgstr "Día"
+
+#: core/models.py:301 core/models.py:382
+msgid "License"
+msgstr "Licencia"
+
+#: core/models.py:302 core/models.py:383
+msgid "Licenses"
+msgstr "Licencias"
+
+#: core/models.py:515
+msgid "File"
+msgstr "Archivo"
+
+#: core_settings/models.py:18 core_settings/models.py:19
+msgid "Site configuration"
+msgstr "Configuración del sitio"
+
+#: core_settings/models.py:66
+msgid "Site settings"
+msgstr "Configuración del sitio"
+
+#: core_settings/models.py:67
+msgid "Admin settings"
+msgstr "Configuración de administración"
+
+#: django_celery_beat/admin.py:69 django_celery_beat/forms.py:55
+msgid "Task (registered)"
+msgstr "Tarea (registrada)"
+
+#: django_celery_beat/admin.py:73 django_celery_beat/forms.py:59
+msgid "Task (custom)"
+msgstr "Tarea (personalizada)"
+
+#: django_celery_beat/admin.py:90 django_celery_beat/forms.py:75
+msgid "Need name of task"
+msgstr "Se necesita el nombre de la tarea"
+
+#: django_celery_beat/admin.py:96 django_celery_beat/forms.py:81
+#: django_celery_beat/models.py:648
+msgid "Only one can be set, in expires and expire_seconds"
+msgstr "Solo uno puede establecerse, entre expires y expire_seconds"
+
+#: django_celery_beat/admin.py:106 django_celery_beat/forms.py:91
+#, python-format
+msgid "Unable to parse JSON: %s"
+msgstr "No se puede analizar JSON: %s"
+
+#: django_celery_beat/admin.py:207 django_celery_beat/wagtail_hooks.py:70
+#, python-brace-format
+msgid "{0} task{1} {2} successfully {3}"
+msgstr "{0} tarea{1} {2} exitosamente {3}"
+
+#: django_celery_beat/admin.py:210 django_celery_beat/admin.py:283
+#: django_celery_beat/wagtail_hooks.py:73
+#: django_celery_beat/wagtail_hooks.py:154
+msgid "was,were"
+msgstr "fue,fueron"
+
+#: django_celery_beat/admin.py:220 django_celery_beat/wagtail_hooks.py:83
+msgid "Enable selected tasks"
+msgstr "Habilitar tareas seleccionadas"
+
+#: django_celery_beat/admin.py:227 django_celery_beat/wagtail_hooks.py:90
+msgid "Disable selected tasks"
+msgstr "Deshabilitar tareas seleccionadas"
+
+#: django_celery_beat/admin.py:242 django_celery_beat/wagtail_hooks.py:105
+msgid "Toggle activity of selected tasks"
+msgstr "Alternar actividad de las tareas seleccionadas"
+
+#: django_celery_beat/admin.py:266 django_celery_beat/wagtail_hooks.py:130
+#, python-brace-format
+msgid "task \"{0}\" not found"
+msgstr "tarea \"{0}\" no encontrada"
+
+#: django_celery_beat/admin.py:280 django_celery_beat/wagtail_hooks.py:151
+#, python-brace-format
+msgid "{0} task{1} {2} successfully run"
+msgstr "{0} tarea{1} {2} ejecutada{1} exitosamente"
+
+#: django_celery_beat/admin.py:287 django_celery_beat/wagtail_hooks.py:158
+msgid "Run selected tasks"
+msgstr "Ejecutar tareas seleccionadas"
+
+#: django_celery_beat/apps.py:13
+msgid "Periodic Tasks"
+msgstr "Tareas Periódicas"
+
+#: django_celery_beat/button_helper.py:15
+msgid "Run"
+msgstr "Ejecutar"
+
+#: django_celery_beat/choices.py:10
+msgid "Days"
+msgstr "Días"
+
+#: django_celery_beat/choices.py:11
+msgid "Hours"
+msgstr "Horas"
+
+#: django_celery_beat/choices.py:12
+msgid "Minutes"
+msgstr "Minutos"
+
+#: django_celery_beat/choices.py:13
+msgid "Seconds"
+msgstr "Segundos"
+
+#: django_celery_beat/choices.py:14
+msgid "Microseconds"
+msgstr "Microsegundos"
+
+#: django_celery_beat/choices.py:19
+msgid "Hour"
+msgstr "Hora"
+
+#: django_celery_beat/choices.py:20
+msgid "Minute"
+msgstr "Minuto"
+
+#: django_celery_beat/choices.py:21
+msgid "Second"
+msgstr "Segundo"
+
+#: django_celery_beat/choices.py:22
+msgid "Microsecond"
+msgstr "Microsegundo"
+
+#: django_celery_beat/choices.py:26
+msgid "Astronomical dawn"
+msgstr "Amanecer astronómico"
+
+#: django_celery_beat/choices.py:27
+msgid "Civil dawn"
+msgstr "Amanecer civil"
+
+#: django_celery_beat/choices.py:28
+msgid "Nautical dawn"
+msgstr "Amanecer náutico"
+
+#: django_celery_beat/choices.py:29
+msgid "Astronomical dusk"
+msgstr "Anochecer astronómico"
+
+#: django_celery_beat/choices.py:30
+msgid "Civil dusk"
+msgstr "Anochecer civil"
+
+#: django_celery_beat/choices.py:31
+msgid "Nautical dusk"
+msgstr "Anochecer náutico"
+
+#: django_celery_beat/choices.py:32
+msgid "Dawn"
+msgstr "Amanecer"
+
+#: django_celery_beat/choices.py:33
+msgid "Sunrise"
+msgstr "Salida del sol"
+
+#: django_celery_beat/choices.py:34
+msgid "Solar noon"
+msgstr "Mediodía solar"
+
+#: django_celery_beat/choices.py:35
+msgid "Sunset"
+msgstr "Puesta del sol"
+
+#: django_celery_beat/choices.py:36
+msgid "Dusk"
+msgstr "Anochecer"
+
+#: django_celery_beat/forms.py:139
+msgid "Crontab expression is invalid. Please check the input fields."
+msgstr "La expresión crontab es inválida. Por favor verifica los campos de entrada."
+
+#: django_celery_beat/models.py:24
+msgid "interval"
+msgstr "intervalo"
+
+#: django_celery_beat/models.py:25
+msgid "intervals"
+msgstr "intervalos"
+
+#: django_celery_beat/models.py:52
+msgid "Minute (integer from 0-59)"
+msgstr "Minuto (entero de 0-59)"
+
+#: django_celery_beat/models.py:54
+msgid "Hour (integer from 0-23)"
+msgstr "Hora (entero de 0-23)"
+
+#: django_celery_beat/models.py:56
+msgid "Day of the week (0-6, 0 is Sunday, or 'mon', 'tue', etc.)"
+msgstr "Día de la semana (0-6, 0 es Domingo, o 'mon', 'tue', etc.)"
+
+#: django_celery_beat/models.py:59
+msgid "Day of the month (1-31)"
+msgstr "Día del mes (1-31)"
+
+#: django_celery_beat/models.py:61
+msgid "Month of the year (1-12)"
+msgstr "Mes del año (1-12)"
+
+#: django_celery_beat/models.py:63
+msgid "Timezone"
+msgstr "Zona horaria"
+
+#: django_celery_beat/models.py:92
+msgid "The human-readable timezone name that this schedule will follow (e.g. 'Europe/Berlin')"
+msgstr "El nombre legible de la zona horaria que seguirá este horario (ej. 'Europe/Berlin')"
+
+#: django_celery_beat/models.py:116
+msgid "crontab"
+msgstr "crontab"
+
+#: django_celery_beat/models.py:117
+msgid "crontabs"
+msgstr "crontabs"
+
+#: django_celery_beat/models.py:137
+msgid "Name"
+msgstr "Nombre"
+
+#: django_celery_beat/models.py:138
+msgid "Event"
+msgstr "Evento"
+
+#: django_celery_beat/models.py:139
+msgid "Latitude"
+msgstr "Latitud"
+
+#: django_celery_beat/models.py:141
+msgid "Longitude"
+msgstr "Longitud"
+
+#: django_celery_beat/models.py:171
+msgid "solar event"
+msgstr "evento solar"
+
+#: django_celery_beat/models.py:172
+msgid "solar events"
+msgstr "eventos solares"
+
+#: django_celery_beat/models.py:184
+msgid "Clocked Time"
+msgstr "Hora Programada"
+
+#: django_celery_beat/models.py:191
+msgid "clocked schedule"
+msgstr "horario programado"
+
+#: django_celery_beat/models.py:192
+msgid "clocked schedules"
+msgstr "horarios programados"
+
+#: django_celery_beat/models.py:290
+msgid "seconds"
+msgstr "segundos"
+
+#: django_celery_beat/models.py:295
+msgid "positional arguments"
+msgstr "argumentos posicionales"
+
+#: django_celery_beat/models.py:297
+msgid "JSON encoded positional arguments (Example: [\"arg1\", \"arg2\"])"
+msgstr "Argumentos posicionales codificados en JSON (Ejemplo: [\"arg1\", \"arg2\"])"
+
+#: django_celery_beat/models.py:302
+msgid "keyword arguments"
+msgstr "argumentos de palabras clave"
+
+#: django_celery_beat/models.py:304
+msgid "JSON encoded keyword arguments (Example: {\"argument\": \"value\"})"
+msgstr "Argumentos de palabras clave codificados en JSON (Ejemplo: {\"argument\": \"value\"})"
+
+#: django_celery_beat/models.py:309
+msgid "queue"
+msgstr "cola"
+
+#: django_celery_beat/models.py:313
+msgid "exchange"
+msgstr "intercambio"
+
+#: django_celery_beat/models.py:317
+msgid "routing key"
+msgstr "clave de enrutamiento"
+
+#: django_celery_beat/models.py:321
+msgid "headers"
+msgstr "encabezados"
+
+#: django_celery_beat/models.py:323
+msgid "JSON encoded message headers for the AMQP message."
+msgstr "Encabezados de mensaje codificados en JSON para el mensaje AMQP."
+
+#: django_celery_beat/models.py:327
+msgid "priority"
+msgstr "prioridad"
+
+#: django_celery_beat/models.py:329
+msgid "Priority Number between 0 and 255. Supported by: RabbitMQ."
+msgstr "Número de prioridad entre 0 y 255. Compatible con: RabbitMQ."
+
+#: django_celery_beat/models.py:336
+msgid "expires"
+msgstr "expira"
+
+#: django_celery_beat/models.py:338
+msgid "Datetime after which the schedule will no longer trigger the task to run"
+msgstr "Fecha y hora después de la cual el horario ya no activará la ejecución de la tarea"
+
+#: django_celery_beat/models.py:343
+msgid "expire seconds"
+msgstr "segundos de expiración"
+
+#: django_celery_beat/models.py:345
+msgid "Timedelta with seconds which the schedule will no longer trigger the task to run"
+msgstr "Timedelta en segundos después del cual el horario ya no activará la ejecución de la tarea"
+
+#: django_celery_beat/models.py:350
+msgid "one-off task"
+msgstr "tarea única"
+
+#: django_celery_beat/models.py:352
+msgid "If True, the schedule will only run the task a single time"
+msgstr "Si es True, el horario solo ejecutará la tarea una vez"
+
+#: django_celery_beat/models.py:356
+msgid "start datetime"
+msgstr "fecha y hora de inicio"
+
+#: django_celery_beat/models.py:358
+msgid "Datetime when the schedule should begin triggering the task to run"
+msgstr "Fecha y hora en que el horario debe comenzar a activar la ejecución de la tarea"
+
+#: django_celery_beat/models.py:363
+msgid "enabled"
+msgstr "habilitado"
+
+#: django_celery_beat/models.py:365
+msgid "Set to False to disable the schedule"
+msgstr "Establecer en False para deshabilitar el horario"
+
+#: django_celery_beat/models.py:369
+msgid "last run at"
+msgstr "última ejecución en"
+
+#: django_celery_beat/models.py:371
+msgid "Datetime that the schedule last triggered the task to run. Reset to None if enabled is set to False."
+msgstr "Fecha y hora en que el horario activó por última vez la ejecución de la tarea. Se restablece a None si enabled se establece en False."
+
+#: django_celery_beat/models.py:376
+msgid "total run count"
+msgstr "conteo total de ejecuciones"
+
+#: django_celery_beat/models.py:378
+msgid "Running count of how many times the schedule has triggered the task"
+msgstr "Conteo de cuántas veces el horario ha activado la tarea"
+
+#: django_celery_beat/models.py:382
+msgid "datetime changed"
+msgstr "fecha y hora modificada"
+
+#: django_celery_beat/models.py:384
+msgid "Datetime that this PeriodicTask was last modified"
+msgstr "Fecha y hora en que esta PeriodicTask fue modificada por última vez"
+
+#: django_celery_beat/models.py:388
+msgid "description"
+msgstr "descripción"
+
+#: django_celery_beat/models.py:390
+msgid "Detailed description about the details of this Periodic Task"
+msgstr "Descripción detallada sobre los detalles de esta Tarea Periódica"
+
+#: django_celery_beat/models.py:638
+msgid "Only one schedule can be selected: Interval, Crontab, Solar, or Clocked"
+msgstr "Solo se puede seleccionar un horario: Intervalo, Crontab, Solar o Programado"
+
+#: django_celery_beat/models.py:642
+msgid "One of interval, crontab, solar, or clocked must be set."
+msgstr "Debe establecerse uno de: intervalo, crontab, solar o programado."
+
+#: django_celery_beat/models.py:668
+msgid "periodic task"
+msgstr "tarea periódica"
+
+#: django_celery_beat/models.py:669
+msgid "periodic tasks"
+msgstr "tareas periódicas"
+
+#: django_celery_beat/wagtail_hooks.py:217
+msgid "enabled,disabled"
+msgstr "habilitada,deshabilitada"
+
+#: django_celery_beat/wagtail_hooks.py:224
+msgid "Periodic tasks"
+msgstr "Tareas periódicas"
+
+#: journal/models.py:27
+msgid "Site ID"
+msgstr "ID del Sitio"
+
+#: journal/models.py:29
+msgid "Short title"
+msgstr "Título corto"
+
+#: journal/models.py:31
+msgid "Journal ISSN"
+msgstr "ISSN de la Revista"
+
+#: journal/models.py:33
+msgid "Online Journal ISSN"
+msgstr "ISSN de la Revista en Línea"
+
+#: journal/models.py:36
+msgid "ISSN SciELO"
+msgstr "ISSN SciELO"
+
+#: journal/models.py:38
+msgid "ISSN SciELO Legacy"
+msgstr "ISSN SciELO Legacy"
+
+#: journal/models.py:41
+msgid "Subject descriptors"
+msgstr "Descriptores de tema"
+
+#: journal/models.py:46
+msgid "Purpose"
+msgstr "Propósito"
+
+#: journal/models.py:49
+msgid "Sponsorship"
+msgstr "Patrocinio"
+
+#: journal/models.py:52
+msgid "Mission"
+msgstr "Misión"
+
+#: journal/models.py:55
+msgid "Index at"
+msgstr "Indexado en"
+
+#: journal/models.py:58
+msgid "Availability"
+msgstr "Disponibilidad"
+
+#: journal/models.py:61
+msgid "Summary form"
+msgstr "Forma de resumen"
+
+#: journal/models.py:64
+msgid "Standard"
+msgstr "Estándar"
+
+#: journal/models.py:67
+msgid "Alphabet title"
+msgstr "Título alfabético"
+
+#: journal/models.py:69
+msgid "Print title"
+msgstr "Título impreso"
+
+#: journal/models.py:72
+msgid "Short title (slug)"
+msgstr "Título corto (slug)"
+
+#: journal/models.py:76
+#: markup_doc/models.py:40
+msgid "Title"
+msgstr "Título"
+
+#: journal/models.py:81
+msgid "Subtitle"
+msgstr "Subtítulo"
+
+#: journal/models.py:86
+msgid "Next title"
+msgstr "Título siguiente"
+
+#: journal/models.py:90
+msgid "Previous title"
+msgstr "Título anterior"
+
+#: journal/models.py:94
+msgid "Control number"
+msgstr "Número de control"
+
+#: journal/models.py:97
+msgid "Publisher name"
+msgstr "Nombre del editor"
+
+#: journal/models.py:99
+msgid "Publisher country"
+msgstr "País del editor"
+
+#: journal/models.py:102
+msgid "Publisher state"
+msgstr "Estado del editor"
+
+#: journal/models.py:105
+msgid "Publisher city"
+msgstr "Ciudad del editor"
+
+#: journal/models.py:108
+msgid "Publisher address"
+msgstr "Dirección del editor"
+
+#: journal/models.py:111
+msgid "Publication level"
+msgstr "Nivel de publicación"
+
+#: journal/models.py:115
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: journal/models.py:119
+msgid "URL online submission"
+msgstr "URL de envío en línea"
+
+#: journal/models.py:122
+msgid "URL home page"
+msgstr "URL de página principal"
+
+#: journal/models.py:146
+msgid "Journal"
+msgstr "Revista"
+
+#: journal/models.py:147
+msgid "Journals"
+msgstr "Revistas"
+
+#: journal/models.py:162
+msgid "Order"
+msgstr "Orden"
+
+#: journal/models.py:174
+msgid "Editor"
+msgstr "Editor"
+
+#: journal/models.py:175
+msgid "Editors"
+msgstr "Editores"
+
+#: journal/wagtail_hooks.py:57
+msgid "Journal and Editor"
+msgstr "Revista y Editor"
+
+#: location/models.py:11
+msgid "Country Name"
+msgstr "Nombre del País"
+
+#: location/models.py:12
+msgid "ACR3"
+msgstr "ACR3"
+
+#: location/models.py:13
+msgid "ACR2"
+msgstr "ACR2"
+
+#: location/models.py:23
+msgid "Country"
+msgstr "País"
+
+#: location/models.py:24
+msgid "Countries"
+msgstr "Países"
+
+#: location/models.py:36
+msgid "State name"
+msgstr "Nombre del estado"
+
+#: location/models.py:37
+msgid "ACR 2 (state)"
+msgstr "ACR 2 (estado)"
+
+#: location/models.py:48
+msgid "State"
+msgstr "Estado"
+
+#: location/models.py:49
+msgid "States"
+msgstr "Estados"
+
+#: location/models.py:61
+msgid "City name"
+msgstr "Nombre de la ciudad"
+
+#: location/models.py:75
+msgid "City"
+msgstr "Ciudad"
+
+#: location/models.py:76
+msgid "Cities"
+msgstr "Ciudades"
+
+#: location/wagtail_hooks.py:55
+msgid "Location"
+msgstr "Ubicación"
+
+#: markup_doc/choices.py:11
+msgid "Document without content"
+msgstr "Documento sin contenido"
+
+#: markup_doc/choices.py:12
+msgid "Structured document without references"
+msgstr "Documento estructurado sin referencias"
+
+#: markup_doc/choices.py:13
+msgid "Structured document"
+msgstr "Documento estructurado"
+
+#: markup_doc/choices.py:14
+msgid "Structured document and references"
+msgstr "Documento estructurado y referencias"
+
+#: markup_doc/models.py:33
+msgid "DOI"
+msgstr "DOI"
+
+#: markup_doc/models.py:56
+msgid "Rich Title"
+msgstr "Título Enriquecido"
+
+#: markup_doc/models.py:58
+msgid "Clean Title"
+msgstr "Título Limpio"
+
+#: markup_doc/models.py:97
+msgid "Document"
+msgstr "Documento"
+
+#: markup_doc/models.py:98
+msgid "Documents"
+msgstr "Documentos"
+
+#: markup_doc/models.py:130
+msgid "Type"
+msgstr "Tipo"
+
+#: markup_doc/models.py:137
+msgid "Paragraph"
+msgstr "Párrafo"
+
+#: markup_doc/models.py:138
+msgid "Paragraphs"
+msgstr "Párrafos"
+
+#: markup_doc/models.py:218
+msgid "Section title"
+msgstr "Título de sección"
+
+#: markup_doc/models.py:222
+msgid "Section code"
+msgstr "Código de sección"
+
+#: markup_doc/models.py:245
+msgid "Section"
+msgstr "Sección"
+
+#: markup_doc/models.py:246
+msgid "Sections"
+msgstr "Secciones"
+
+#: markup_doc/models.py:279
+msgid "Figure"
+msgstr "Figura"
+
+#: markup_doc/models.py:280
+msgid "Figures"
+msgstr "Figuras"
+
+#: markup_doc/models.py:306
+msgid "Table"
+msgstr "Tabla"
+
+#: markup_doc/models.py:307
+msgid "Tables"
+msgstr "Tablas"
+
+#: markup_doc/models.py:322
+msgid "Supplementary Material"
+msgstr "Material Suplementario"
+
+#: markup_doc/models.py:323
+msgid "Supplementary Materials"
+msgstr "Materiales Suplementarios"
+
+#: markup_doc/models.py:336
+msgid "Document ID"
+msgstr "ID de Documento"
+
+#: markup_doc/models.py:340
+msgid "Document ID type"
+msgstr "Tipo de ID de documento"
+
+#: markup_doc/models.py:349
+msgid "DOCX ID"
+msgstr "ID de DOCX"
+
+#: markup_doc/models.py:350
+msgid "DOCX IDs"
+msgstr "IDs de DOCX"
+
+#: markup_doc/models.py:360
+msgid "DOCX Subtitle"
+msgstr "Subtítulo de DOCX"
+
+#: markup_doc/models.py:377
+msgid "DOCX Body"
+msgstr "Cuerpo de DOCX"
+
+#: markup_doc/models.py:378
+msgid "DOCX Bodies"
+msgstr "Cuerpos de DOCX"
+
+#: markup_doc/models.py:386
+msgid "DOCX Section"
+msgstr "Sección de DOCX"
+
+#: markup_doc/models.py:387
+msgid "DOCX Sections"
+msgstr "Secciones de DOCX"
+
+#: markup_doc/models.py:400
+msgid "Legend"
+msgstr "Leyenda"
+
+#: markup_doc/models.py:405
+msgid "Caption"
+msgstr "Pie de imagen"
+
+#: markup_doc/models.py:409
+msgid "Source"
+msgstr "Fuente"
+
+#: markup_doc/models.py:410
+msgid "Target"
+msgstr "Destino"
+
+#: markup_doc/models.py:413
+msgid "Content type"
+msgstr "Tipo de contenido"
+
+#: markup_doc/models.py:414
+msgid "MIME Type"
+msgstr "Tipo MIME"
+
+#: markup_doc/models.py:428
+msgid "DOCX Figure"
+msgstr "Figura de DOCX"
+
+#: markup_doc/models.py:429
+msgid "DOCX Figures"
+msgstr "Figuras de DOCX"
+
+#: markup_doc/models.py:442
+msgid "Columns"
+msgstr "Columnas"
+
+#: markup_doc/models.py:443
+msgid "Rows"
+msgstr "Filas"
+
+#: markup_doc/models.py:451
+msgid "DOCX Table"
+msgstr "Tabla de DOCX"
+
+#: markup_doc/models.py:452
+msgid "DOCX Tables"
+msgstr "Tablas de DOCX"
+
+#: markup_doc/wagtail_hooks.py:91
+msgid "MarkupDoc"
+msgstr "MarkupDoc"
+
+#: model_ai/models.py:17
+msgid "Model Provider"
+msgstr "Proveedor del Modelo"
+
+#: model_ai/models.py:22
+msgid "Model Name"
+msgstr "Nombre del Modelo"
+
+#: model_ai/models.py:27
+msgid "Model Type"
+msgstr "Tipo de Modelo"
+
+#: model_ai/models.py:32
+msgid "Context length"
+msgstr "Longitud del contexto"
+
+#: model_ai/models.py:34
+msgid "Hugging Face model name"
+msgstr "Nombre del modelo de Hugging Face"
+
+#: model_ai/models.py:35
+msgid "Model file"
+msgstr "Archivo del modelo"
+
+#: model_ai/models.py:36
+msgid "Hugging Face token"
+msgstr "Token de Hugging Face"
+
+#: model_ai/models.py:38
+msgid "Local model status"
+msgstr "Estado del modelo local"
+
+#: model_ai/models.py:44
+msgid "URL Markapi"
+msgstr "URL de Markapi"
+
+#: model_ai/models.py:49
+msgid "API KEY Gemini"
+msgstr "Clave API de Gemini"
+
+#: model_ai/models.py:67 model_ai/models.py:71
+msgid "Only one instance of LlamaModel is allowed."
+msgstr "Solo se permite una instancia de LlamaModel."
+
+#: model_ai/wagtail_hooks.py:28 model_ai/wagtail_hooks.py:63
+msgid "Model name is required."
+msgstr "El nombre del modelo es obligatorio."
+
+#: model_ai/wagtail_hooks.py:32 model_ai/wagtail_hooks.py:67
+msgid "Model file is required."
+msgstr "El archivo del modelo es obligatorio."
+
+#: model_ai/wagtail_hooks.py:36 model_ai/wagtail_hooks.py:71
+msgid "Hugging Face token is required."
+msgstr "El token de Hugging Face es obligatorio."
+
+#: model_ai/wagtail_hooks.py:42
+msgid "Model created and download started."
+msgstr "Modelo creado y descarga iniciada."
+
+#: model_ai/wagtail_hooks.py:46 model_ai/wagtail_hooks.py:82
+msgid "API AI URL is required."
+msgstr "La URL de API AI es obligatoria."
+
+#: model_ai/wagtail_hooks.py:50
+msgid "Model created, use API AI."
+msgstr "Modelo creado, usar API AI."
+
+#: model_ai/wagtail_hooks.py:77
+msgid "Model updated and download started."
+msgstr "Modelo actualizado y descarga iniciada."
+
+#: model_ai/wagtail_hooks.py:79
+msgid "Model updated and already downloaded."
+msgstr "Modelo actualizado y ya descargado."
+
+#: model_ai/wagtail_hooks.py:86
+msgid "Model updated, use API AI."
+msgstr "Modelo actualizado, usar API AI."
+
+#: model_ai/wagtail_hooks.py:95
+msgid "AI LLM Model"
+msgstr "Modelo de LLM de IA"
+
+#: reference/models.py:15
+msgid "No reference"
+msgstr "Sin referencia"
+
+#: reference/models.py:16
+msgid "Creating reference"
+msgstr "Creando referencia"
+
+#: reference/models.py:17
+msgid "Reference ready"
+msgstr "Referencia lista"
+
+#: reference/models.py:22
+msgid "Mixed Citation"
+msgstr "Cita mixta"
+
+#: reference/models.py:25
+msgid "Reference status"
+msgstr "Estado de referencia"
+
+#: reference/models.py:33
+msgid "Cited Elements"
+msgstr "Elementos Citados"
+
+#: reference/models.py:46
+msgid "Marked"
+msgstr "Marcado"
+
+#: reference/models.py:47
+msgid "Marked XML"
+msgstr "XML Marcado"
+
+#: reference/models.py:56
+msgid "Rating from 1 to 10"
+msgstr "Calificación del 1 al 10"
+
+#: reference/wagtail_hooks.py:41
+msgid "Reference"
+msgstr "Referencia"
+
+#: tracker/choices.py:9
+msgid "error"
+msgstr "error"
+
+#: tracker/choices.py:10
+msgid "warning"
+msgstr "advertencia"
+
+#: tracker/choices.py:11
+msgid "info"
+msgstr "información"
+
+#: tracker/choices.py:12
+msgid "exception"
+msgstr "excepción"
+
+#: tracker/choices.py:24
+msgid "To reprocess"
+msgstr "Para reprocesar"
+
+#: tracker/choices.py:25
+msgid "To do"
+msgstr "Por hacer"
+
+#: tracker/choices.py:26
+msgid "Done"
+msgstr "Completado"
+
+#: tracker/choices.py:27
+msgid "Doing"
+msgstr "Haciendo"
+
+#: tracker/choices.py:28
+msgid "Pending"
+msgstr "Pendiente"
+
+#: tracker/choices.py:29
+msgid "ignored"
+msgstr "ignorado"
+
+#: tracker/choices.py:41
+msgid "XML Parsing Error"
+msgstr "Error de Análisis XML"
+
+#: tracker/choices.py:42
+msgid "XML Validation Error"
+msgstr "Error de Validación XML"
+
+#: tracker/choices.py:43
+msgid "XML Conversion to DOCX Error"
+msgstr "Error de Conversión XML a DOCX"
+
+#: tracker/choices.py:44
+msgid "XML Conversion to HTML Error"
+msgstr "Error de Conversión XML a HTML"
+
+#: tracker/choices.py:45
+msgid "XML Conversion to PDF Error"
+msgstr "Error de Conversión XML a PDF"
+
+#: tracker/choices.py:46
+msgid "XML Conversion to TEX Error"
+msgstr "Error de Conversión XML a TEX"
+
+#: tracker/choices.py:47
+msgid "Unknown Error"
+msgstr "Error Desconocido"
+
+#: tracker/models.py:28
+msgid "Error Type"
+msgstr "Tipo de Error"
+
+#: tracker/models.py:35
+msgid "Data"
+msgstr "Datos"
+
+#: tracker/models.py:39
+msgid "Message"
+msgstr "Mensaje"
+
+#: tracker/models.py:44
+msgid "Handled"
+msgstr "Manejado"
+
+#: tracker/models.py:70
+msgid "XML Document Event"
+msgstr "Evento de Documento XML"
+
+#: tracker/models.py:71 tracker/wagtail_hooks.py:16
+msgid "XML Document Events"
+msgstr "Eventos de Documento XML"
+
+#: tracker/models.py:77
+msgid "Exception Type"
+msgstr "Tipo de Excepción"
+
+#: tracker/models.py:78
+msgid "Exception Msg"
+msgstr "Mensaje de Excepción"
+
+#: tracker/models.py:82
+msgid "Item"
+msgstr "Elemento"
+
+#: tracker/models.py:88 xml_manager/wagtail_hooks.py:69
+msgid "Action"
+msgstr "Acción"
+
+#: tracker/models.py:101
+msgid "General Event"
+msgstr "Evento General"
+
+#: tracker/models.py:102 tracker/wagtail_hooks.py:47
+msgid "General Events"
+msgstr "Eventos Generales"
+
+#: tracker/wagtail_hooks.py:81
+msgid "Unexpected Events"
+msgstr "Eventos Inesperados"
+
+#: users/admin.py:13
+msgid "Personal info"
+msgstr "Información personal"
+
+#: users/admin.py:15
+msgid "Permissions"
+msgstr "Permisos"
+
+#: users/admin.py:26
+msgid "Important dates"
+msgstr "Fechas importantes"
+
+#: users/forms.py:11
+msgid "This username has already been taken."
+msgstr "Este nombre de usuario ya ha sido tomado."
+
+#: users/models.py:15
+msgid "Name of User"
+msgstr "Nombre del Usuario"
+
+#: xml_manager/models.py:9
+msgid "XML File"
+msgstr "Archivo XML"
+
+#: xml_manager/models.py:10
+msgid "Upload an XML file for processing."
+msgstr "Subir un archivo XML para procesamiento."
+
+#: xml_manager/models.py:16
+msgid "Validation File"
+msgstr "Archivo de Validación"
+
+#: xml_manager/models.py:22
+msgid "Exceptions File"
+msgstr "Archivo de Excepciones"
+
+#: xml_manager/models.py:26 xml_manager/models.py:61 xml_manager/models.py:93
+msgid "Uploaded At"
+msgstr "Subido En"
+
+#: xml_manager/models.py:27
+msgid "The date and time when the file was uploaded."
+msgstr "La fecha y hora cuando el archivo fue subido."
+
+#: xml_manager/models.py:38 xml_manager/models.py:43 xml_manager/models.py:82
+#: xml_manager/wagtail_hooks.py:56 xml_manager/wagtail_hooks.py:60
+msgid "XML Document"
+msgstr "Documento XML"
+
+#: xml_manager/models.py:39 xml_manager/wagtail_hooks.py:57
+msgid "XML Documents"
+msgstr "Documentos XML"
+
+#: xml_manager/models.py:46
+msgid "PDF File"
+msgstr "Archivo PDF"
+
+#: xml_manager/models.py:50
+msgid "DOCX File"
+msgstr "Archivo DOCX"
+
+#: xml_manager/models.py:53
+msgid "Intermediate DOCX file generated during PDF creation"
+msgstr "Archivo DOCX intermedio generado durante la creación del PDF"
+
+#: xml_manager/models.py:59 xml_manager/models.py:91
+msgid "Language code or name"
+msgstr "Código o nombre del idioma"
+
+#: xml_manager/models.py:67 xml_manager/wagtail_hooks.py:77
+#: xml_manager/wagtail_hooks.py:81
+msgid "XML Document PDF"
+msgstr "PDF de Documento XML"
+
+#: xml_manager/models.py:68 xml_manager/wagtail_hooks.py:78
+msgid "XML Document PDFs"
+msgstr "PDFs de Documento XML"
+
+#: xml_manager/models.py:85
+msgid "HTML File"
+msgstr "Archivo HTML"
+
+#: xml_manager/models.py:99 xml_manager/wagtail_hooks.py:98
+#: xml_manager/wagtail_hooks.py:102
+msgid "XML Document HTML"
+msgstr "HTML de Documento XML"
+
+#: xml_manager/models.py:100 xml_manager/wagtail_hooks.py:99
+msgid "XML Document HTMLs"
+msgstr "HTMLs de Documento XML"
+
+#: xml_manager/wagtail_hooks.py:66
+msgid "Validation file"
+msgstr "Archivo de validación"
+
+#: xml_manager/wagtail_hooks.py:67
+msgid "Exceptions file"
+msgstr "Archivo de excepciones"
+
+#: xml_manager/wagtail_hooks.py:118
+msgid "XML Processor"
+msgstr "Procesador XML"
+
+#: menu items
+msgid "DOCX Files"
+msgstr "Archivos DOCX"
+
+#: menu items
+msgid "XML Files"
+msgstr "Archivos XML"
+
+#: menu items
+msgid "Tarefas"
+msgstr "Tareas"
+
+#: menu items
+msgid "Carregar DOCX"
+msgstr "Cargar DOCX"
+
+#: menu items
+msgid "XML marcado"
+msgstr "XML marcado"
+
+#: markup_doc/wagtail_hooks.py
+msgid "You must first select a collection."
+msgstr "Debes seleccionar primero una colección."
+
+#: markup_doc/wagtail_hooks.py
+msgid "Wait a moment, there are no Journal elements yet."
+msgstr "Espera un momento, aún no existen elementos en Journal."
+
+#: markup_doc/wagtail_hooks.py
+msgid "Synchronizing journals from the API, please wait a moment..."
+msgstr "Sincronizando revistas desde la API, espera unos momentos..."

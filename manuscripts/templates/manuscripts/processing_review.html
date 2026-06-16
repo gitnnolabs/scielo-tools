@@ -1,0 +1,17 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+{% block titletag %}{% trans "Review processing" %}{% endblock %}
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title="Review processing" icon="tasks" %}
+  <div class="nice-padding">
+    <p><strong>{% trans "File" %}:</strong> {{ processing.input_file.name }}</p>
+    {% if processing.inspection.article_candidates %}
+      <table class="listing"><thead><tr><th>{% trans "File" %}</th><th>{% trans "Title" %}</th><th>DOI</th><th>PID</th></tr></thead>
+        <tbody>{% for article in processing.inspection.article_candidates %}<tr><td>{{ article.path|default:"-" }}</td><td>{{ article.title|default:"-" }}</td><td>{{ article.doi|default:"-" }}</td><td>{{ article.pid|default:"-" }}</td></tr>{% endfor %}</tbody>
+      </table>
+    {% endif %}
+    <form method="post">{% csrf_token %}{{ form.as_p }}
+      <button class="button button-longrunning" type="submit">{% trans "Confirm and start" %}</button>
+    </form>
+  </div>
+{% endblock %}

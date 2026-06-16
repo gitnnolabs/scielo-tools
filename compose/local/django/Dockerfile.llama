@@ -1,0 +1,111 @@
+ARG PYTHON_VERSION=3.12-bookworm
+
+FROM python:${PYTHON_VERSION} AS python
+
+FROM python AS python-build-stage
+
+ARG BUILD_ENVIRONMENT=local
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  build-essential \
+  git \
+  libpq-dev \
+  software-properties-common \
+  libopenblas-dev \
+  libomp-dev
+
+RUN apt-get update && \
+    apt-get install -y ninja-build cmake && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip setuptools wheel
+
+COPY ./requirements .
+
+RUN python -m pip install --upgrade pip
+
+RUN pip wheel --wheel-dir /usr/src/app/wheels \
+  -r ${BUILD_ENVIRONMENT}.txt
+
+FROM python AS python-run-stage
+
+ARG BUILD_ENVIRONMENT=local
+ARG APP_HOME=/app
+ARG DISABLE_AVX=true
+ARG LLAMA_VERSION=0.3.14
+
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV BUILD_ENV ${BUILD_ENVIRONMENT}
+
+WORKDIR ${APP_HOME}
+
+RUN if [ -f /etc/apt/sources.list ]; then \
+      sed -i 's/main/main contrib non-free/' /etc/apt/sources.list; \
+    elif [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+      sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources; \
+    fi
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  libpq-dev \
+  gettext \
+  # WeasyPrint dependencies
+  libpango-1.0-0 libpangocairo-1.0-0 shared-mime-info \
+  build-essential cmake ninja-build \
+  # DOCX to image conversion
+  libreoffice-core libreoffice-writer poppler-utils \
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=python-build-stage /usr/src/app/wheels /wheels/
+
+RUN pip install --no-cache-dir --no-index --find-links=/wheels/ $(find /wheels/ -name "*.whl" ! -name "llama_cpp_python*") && rm -rf /wheels/
+
+ARG TARGETARCH
+RUN set -eux; \
+  ARCH="${TARGETARCH:-}"; \
+  if [ -z "${ARCH}" ]; then ARCH="$(uname -m)"; fi; \
+  if [ "${ARCH}" = "arm64" ] || [ "${ARCH}" = "aarch64" ]; then \
+    pip install "llama-cpp-python==${LLAMA_VERSION}" \
+      --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
+      --only-binary=:all: \
+      --no-cache-dir \
+    || { \
+      export FORCE_CMAKE=1; \
+      export CMAKE_ARGS="-DGGML_NATIVE=OFF -DGGML_CPU_ALL_VARIANTS=OFF -DGGML_CPU_ARM_ARCH=armv8-a -DGGML_LLAMAFILE=OFF -DGGML_CPU_REPACK=OFF"; \
+      pip install "llama-cpp-python==${LLAMA_VERSION}" --force-reinstall --no-cache-dir; \
+    }; \
+  else \
+    pip install "llama-cpp-python==${LLAMA_VERSION}" --prefer-binary --no-cache-dir \
+    || { \
+      export FORCE_CMAKE=1; \
+      if [ "${DISABLE_AVX}" = "true" ]; then \
+        export CMAKE_ARGS="-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DLLAMA_F16C=OFF -DLLAMA_OPENMP=ON"; \
+      fi; \
+      pip install "llama-cpp-python==${LLAMA_VERSION}" --force-reinstall --no-cache-dir; \
+    }; \
+  fi
+
+COPY ./compose/production/django/entrypoint /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint
+RUN chmod +x /entrypoint
+
+COPY ./compose/local/django/start /start
+RUN sed -i 's/\r$//g' /start
+RUN chmod +x /start
+
+COPY ./compose/local/django/celery/worker/start /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
+
+COPY ./compose/local/django/celery/beat/start /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
+
+COPY ./compose/local/django/celery/flower/start /start-flower
+RUN sed -i 's/\r$//g' /start-flower
+RUN chmod +x /start-flower
+
+COPY . ${APP_HOME}
+
+ENTRYPOINT ["/entrypoint"]

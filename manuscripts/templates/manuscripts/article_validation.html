@@ -1,0 +1,325 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+
+{% block titletag %}{% trans "Validation" %}: {{ article }}{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  {# CodeMirror via CDN for annotated XML #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  <style>
+    /* ── Layout tabs ── */
+    .val-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--color-border, #ddd); margin-bottom: 1.5rem; }
+    .val-tab {
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      color: var(--color-text-meta, #555);
+      user-select: none;
+    }
+    .val-tab.active { border-bottom-color: var(--color-primary, #007d7e); color: var(--color-primary, #007d7e); }
+    .val-panel { display: none; }
+    .val-panel.active { display: block; }
+
+    /* ── Summary cards ── */
+    .val-summary { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .val-card {
+      background: var(--color-surface-menus, #fff);
+      border: 1px solid var(--color-border, #e0e0e0);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      min-width: 120px;
+      text-align: center;
+    }
+    .val-card .count { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .val-card .label { font-size: 0.75rem; color: var(--color-text-meta, #666); margin-top: 0.2rem; }
+    .val-card.ok .count    { color: #166534; }
+    .val-card.error .count { color: #991b1b; }
+    .val-card.warn .count  { color: #92400e; }
+    .val-card.exc .count   { color: #7c3aed; }
+
+    /* ── Filter bar ── */
+    .val-filter { margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .val-filter input[type=text] {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--color-border, #ccc);
+      border-radius: 4px;
+      font-size: 0.85rem;
+      flex: 1 1 200px;
+    }
+    .val-filter select {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--color-border, #ccc);
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* ── Data validation table ── */
+    .val-table-wrap { overflow-x: auto; }
+    .val-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .val-table th {
+      background: var(--color-surface-menus, #f5f5f5);
+      border-bottom: 2px solid var(--color-border, #ddd);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      white-space: nowrap;
+      position: sticky; top: 0; z-index: 1;
+    }
+    .val-table td {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid var(--color-border, #eee);
+      vertical-align: top;
+      max-width: 280px;
+      word-break: break-word;
+    }
+    .val-table tr:hover td { background: rgba(0,0,0,.02); }
+    .badge {
+      display: inline-block; padding: 0.15rem 0.5rem;
+      border-radius: 4px; font-size: 0.73rem; font-weight: 700; white-space: nowrap;
+    }
+    .badge-ERROR   { background: #fee2e2; color: #991b1b; }
+    .badge-WARNING { background: #fef3c7; color: #92400e; }
+    .badge-INFO    { background: #dbeafe; color: #1e40af; }
+    .badge-OK      { background: #dcfce7; color: #166534; }
+
+    /* ── Schema validation ── */
+    .schema-errors-list { list-style: none; padding: 0; margin: 0 0 1rem; }
+    .schema-errors-list li {
+      display: flex; gap: 0.5rem; align-items: baseline;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--color-border, #eee);
+      font-size: 0.83rem;
+    }
+    .schema-errors-list li:hover { background: rgba(0,0,0,.02); }
+    .schema-line {
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-meta, #888);
+      white-space: nowrap;
+      font-size: 0.75rem;
+      min-width: 60px;
+    }
+    .schema-msg { flex: 1; }
+    .schema-valid-badge {
+      display: inline-block; padding: 0.3rem 0.8rem;
+      border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem;
+    }
+    .schema-valid-badge.ok    { background: #dcfce7; color: #166534; }
+    .schema-valid-badge.fail  { background: #fee2e2; color: #991b1b; }
+    .schema-valid-badge.unk   { background: #f3f4f6; color: #6b7280; }
+
+    /* ── CodeMirror ── */
+    .CodeMirror {
+      font-size: 0.78rem;
+      height: 60vh;
+      border-radius: 6px;
+      border: 1px solid var(--color-border, #ddd);
+    }
+
+    /* ── Exceptions ── */
+    .exc-panel { margin-top: 1.5rem; }
+    .exc-panel summary { cursor: pointer; font-weight: bold; padding: 0.5rem 0; color: #7c3aed; }
+    .exc-panel pre {
+      background: #1e1e2e; color: #cdd6f4; padding: 1rem;
+      border-radius: 6px; font-size: 0.78rem; overflow: auto; max-height: 35vh;
+    }
+
+    /* ── Misc ── */
+    .dl-links { margin-bottom: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .empty-msg { color: var(--color-text-meta, #888); font-style: italic; padding: 0.75rem 0; }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title=article subtitle=_("Validation report") icon="tick-inverse" %}
+  <div class="nice-padding">
+
+    {# Download links #}
+    <div class="dl-links">
+      {% if report_artifact %}
+        <a class="button button-secondary button-small" href="{% url 'manuscripts:artifact_download' report_artifact.pk %}">
+          {% trans "JSON (data)" %}
+        </a>
+      {% endif %}
+      {% if exceptions_artifact %}
+        <a class="button button-secondary button-small" href="{% url 'manuscripts:artifact_download' exceptions_artifact.pk %}">
+          {% trans "JSON (exceptions)" %}
+        </a>
+      {% endif %}
+      {% if xml_artifact %}
+        <a class="button button-secondary button-small" href="{% url 'manuscripts:artifact_download' xml_artifact.pk %}">
+          {% trans "XML" %}
+        </a>
+      {% endif %}
+    </div>
+
+    {# Summary cards #}
+    <div class="val-summary">
+      <div class="val-card {% if rows %}error{% else %}ok{% endif %}">
+        <div class="count">{{ rows|length }}</div>
+        <div class="label">{% trans "Data issues" %}</div>
+      </div>
+      <div class="val-card exc">
+        <div class="count">{{ exceptions|length }}</div>
+        <div class="label">{% trans "Exceptions" %}</div>
+      </div>
+      {% if schema_valid is not None %}
+        <div class="val-card {% if schema_valid %}ok{% else %}error{% endif %}">
+          <div class="count">{{ schema_errors|length }}</div>
+          <div class="label">{% trans "Schema errors" %}</div>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Tabs #}
+    <div class="val-tabs">
+      <div class="val-tab active" onclick="switchTab('data')">{% trans "Data validation" %} ({{ rows|length }})</div>
+      {% if xml_artifact %}
+        <div class="val-tab" onclick="switchTab('schema')">{% trans "Schema DTD/SPS" %} {% if schema_valid is not None %}({{ schema_errors|length }}){% endif %}</div>
+      {% endif %}
+    </div>
+
+    {# ── TAB: Data ── #}
+    <div class="val-panel active" id="tab-data">
+      {% if rows %}
+        <div class="val-filter">
+          <input type="text" id="val-search" placeholder="{% trans 'Filter...' %}" oninput="filterTable()">
+          <select id="val-response-filter" onchange="filterTable()">
+            <option value="">{% trans "All types" %}</option>
+            <option value="ERROR">ERROR</option>
+            <option value="WARNING">WARNING</option>
+            <option value="INFO">INFO</option>
+          </select>
+        </div>
+        <div class="val-table-wrap">
+          <table class="val-table" id="val-table">
+            <thead>
+              <tr>
+                <th>{% trans "Group" %}</th>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Attribute" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Resp." %}</th>
+                <th>{% trans "Expected" %}</th>
+                <th>{% trans "Got" %}</th>
+                <th>{% trans "Advice" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+              <tr>
+                <td>{{ row.group|default:"—" }}</td>
+                <td>{{ row.title|default:"—" }}</td>
+                <td><code>{{ row.attribute|default:"—" }}</code></td>
+                <td>{{ row.validation_type|default:"—" }}</td>
+                <td><span class="badge badge-{{ row.response }}">{{ row.response }}</span></td>
+                <td>{{ row.expected_value|default:"—" }}</td>
+                <td>{{ row.got_value|default:"—" }}</td>
+                <td>{{ row.advice|default:"" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="empty-msg">{% trans "No data validation issues found." %}</p>
+      {% endif %}
+
+      {% if exceptions %}
+      <details class="exc-panel">
+        <summary>{% trans "Technical exceptions" %} ({{ exceptions|length }})</summary>
+        <pre>{{ exceptions|pprint }}</pre>
+      </details>
+      {% endif %}
+    </div>
+
+    {# ── TAB: Schema DTD/SPS ── #}
+    {% if xml_artifact %}
+    <div class="val-panel" id="tab-schema">
+      {% if schema_valid is None %}
+        <p class="empty-msg">{% trans "Schema validation could not be performed." %}
+          {% if schema_errors %} — {{ schema_errors.0.message }}{% endif %}
+        </p>
+      {% else %}
+        {% if schema_valid %}
+          <span class="schema-valid-badge ok">{% trans "XML valid according to DTD/SPS schema" %}</span>
+        {% else %}
+          <span class="schema-valid-badge fail">{% trans "XML invalid — see errors below" %}</span>
+        {% endif %}
+
+        {% if schema_errors %}
+          <ul class="schema-errors-list">
+            {% for err in schema_errors %}
+            <li>
+              <span class="schema-line">{% if err.line %}L{{ err.line }}{% else %}—{% endif %}</span>
+              <span class="schema-msg">{{ err.message }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if annotated_xml %}
+          <p style="font-size:0.82rem; color: var(--color-text-meta,#666); margin-bottom:0.5rem;">
+            {% trans "XML with embedded error annotations (XML comments):" %}
+          </p>
+          <textarea id="xml-annotated-editor" style="display:none;">{{ annotated_xml }}</textarea>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <script>
+    // ── Tab switching ──
+    function switchTab(name) {
+      document.querySelectorAll('.val-tab').forEach((t, i) => {
+        const panels = ['data', 'schema'];
+        t.classList.toggle('active', panels[i] === name);
+      });
+      document.querySelectorAll('.val-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + name);
+      });
+      if (name === 'schema' && !window._cmEditor) {
+        initEditor();
+      }
+    }
+
+    // ── Filter for data table ──
+    function filterTable() {
+      const search = document.getElementById('val-search').value.toLowerCase();
+      const resp   = document.getElementById('val-response-filter').value.toUpperCase();
+      document.querySelectorAll('#val-table tbody tr').forEach(tr => {
+        const text  = tr.textContent.toLowerCase();
+        const badge = tr.querySelector('.badge')?.textContent.trim() || '';
+        tr.style.display = ((!search || text.includes(search)) && (!resp || badge === resp)) ? '' : 'none';
+      });
+    }
+
+    // ── CodeMirror for annotated XML ──
+    function initEditor() {
+      const textarea = document.getElementById('xml-annotated-editor');
+      if (!textarea || !window.CodeMirror) return;
+      window._cmEditor = CodeMirror.fromTextArea(textarea, {
+        mode: 'xml',
+        theme: 'dracula',
+        lineNumbers: true,
+        lineWrapping: false,
+        readOnly: true,
+        foldGutter: true,
+        gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+      });
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,426 @@
+{% extends "wagtailadmin/generic/inspect.html" %}
+{% load i18n %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style>
+    .article-inspect-panel {
+      margin: 1.5rem 0;
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--color-border, #ddd);
+      border-radius: 6px;
+      background: var(--color-surface-page, #fff);
+    }
+    .article-inspect-panel--muted {
+      background: var(--color-surface-menus, #f9f9f9);
+    }
+    .article-inspect-panel h2 {
+      margin-top: 0;
+    }
+    .article-inspect-actions {
+      display: flex;
+      column-gap: 0.75rem;
+      row-gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .article-inspect-actions > * {
+      margin: 0 !important;
+    }
+    .article-inspect-actions details {
+      position: relative;
+    }
+    .article-inspect-actions summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .article-inspect-actions summary.button,
+    .article-reprocess summary.button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .article-inspect-actions summary::-webkit-details-marker {
+      display: none;
+    }
+    .article-inspect-actions summary.button::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 0.25rem solid transparent;
+      border-right: 0.25rem solid transparent;
+      border-top: 0.3rem solid currentColor;
+    }
+    .article-downloads-menu {
+      position: absolute;
+      z-index: 10;
+      min-width: 12rem;
+      margin-top: 0.35rem;
+      padding: 0.5rem;
+      border: 1px solid var(--color-border, #ddd);
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+      display: grid;
+      gap: 0.35rem;
+    }
+    .article-reprocess {
+      margin-top: 1rem;
+      border-top: 1px solid var(--color-border, #ddd);
+      padding-top: 1rem;
+    }
+    .article-reprocess details summary {
+      width: max-content;
+      list-style: none;
+      cursor: pointer;
+    }
+    .article-reprocess details summary::-webkit-details-marker {
+      display: none;
+    }
+    .article-reprocess-body {
+      margin-top: 0.75rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+    .article-note {
+      padding: 0.75rem 1rem;
+      border-left: 4px solid var(--color-primary, #007d7e);
+      background-color: rgba(0, 125, 126, 0.05);
+    }
+    .article-note--warning {
+      border-left-color: #d97706;
+      background-color: rgba(217, 119, 6, 0.05);
+      color: #92400e;
+    }
+    .article-note p {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .article-danger {
+      margin-top: 1rem;
+      border-top: 1px solid var(--color-border, #ddd);
+      padding-top: 1rem;
+    }
+    .article-danger summary {
+      width: max-content;
+      list-style: none;
+      cursor: pointer;
+    }
+    .article-danger summary::-webkit-details-marker {
+      display: none;
+    }
+    .article-danger-body {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 48rem;
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid #b91c1c;
+      background: rgba(185, 28, 28, 0.05);
+    }
+    .article-danger-form {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .article-danger-form input[type="text"] {
+      min-width: 9rem;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--color-border, #ccc);
+      border-radius: 4px;
+    }
+    .article-kpi-list {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .article-kpi-list li {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border, #ddd);
+      border-radius: 6px;
+      background: var(--color-surface-menus, #f9f9f9);
+    }
+    .article-kpi-list strong {
+      display: block;
+      font-size: 1.1rem;
+    }
+    .article-ai-badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+    .event-status {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .event-status.completed  { background: #dcfce7; color: #166534; }
+    .event-status.failed     { background: #fee2e2; color: #991b1b; }
+    .event-status.running    { background: #dbeafe; color: #1e40af; }
+    .event-status.processing { background: #dbeafe; color: #1e40af; }
+    .event-status.skipped    { background: #f3f4f6; color: #6b7280; }
+    .event-status.pending    { background: #fef3c7; color: #92400e; }
+    .event-status.partial    { background: #fef3c7; color: #92400e; }
+    .event-status.cancelled  { background: #f3f4f6; color: #6b7280; }
+    .event-status.awaiting_review { background: #f3f4f6; color: #6b7280; }
+    .article-reprocess-form {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .article-reprocess-form select {
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--color-border, #ccc);
+      font-size: 0.85rem;
+    }
+    .article-history-summary {
+      width: max-content;
+      color: var(--color-link, #007d7e);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+    .article-history-summary::-webkit-details-marker {
+      color: currentColor;
+    }
+  </style>
+{% endblock %}
+
+{% block fields_output %}
+  <section class="article-inspect-panel">
+    <h2>{% trans "Article data" %}</h2>
+    <dl>
+      <dt>{% trans "Provisional title" %}</dt>
+      <dd>{{ object.title|default:"-" }}</dd>
+      <dt>DOI</dt>
+      <dd>{{ object.doi|default:"-" }}</dd>
+      <dt>PID</dt>
+      <dd>{{ object.pid|default:"-" }}</dd>
+      <dt>Journal</dt>
+      <dd>
+        {% if object.journal %}
+          {{ object.journal }}
+        {% else %}
+          <span style="display: inline-block; padding: 0.15rem 0.45rem; border-radius: 4px; background-color: rgba(217, 119, 6, 0.08); color: #92400e; border: 1px solid rgba(217, 119, 6, 0.25);">{% trans "Undetermined" %}</span>
+        {% endif %}
+      </dd>
+      <dt>Issue</dt>
+      <dd>
+        {% if object.issue %}
+          {{ object.issue }}
+        {% else %}
+          <span style="display: inline-block; padding: 0.15rem 0.45rem; border-radius: 4px; background-color: rgba(217, 119, 6, 0.08); color: #92400e; border: 1px solid rgba(217, 119, 6, 0.25);">{% trans "Undetermined" %}</span>
+        {% endif %}
+      </dd>
+      <dt>{% trans "Status" %}</dt>
+      <dd>{{ object.get_status_display }}</dd>
+      <dt>{% trans "Created at" %}</dt>
+      <dd>{{ object.created|date:"SHORT_DATETIME_FORMAT" }}</dd>
+      <dt>{% trans "Updated at" %}</dt>
+      <dd>{{ object.updated|date:"SHORT_DATETIME_FORMAT" }}</dd>
+    </dl>
+  </section>
+
+  <section class="article-inspect-panel article-inspect-panel--muted">
+    <h2>{% trans "Article actions" %}</h2>
+    <div class="article-inspect-actions">
+      {% if structure %}
+        <a class="button" href="{% url 'manuscripts:article_structure_edit' object.pk %}">{% trans "Edit structure" %}</a>
+        <a class="button button-secondary" href="{% url 'manuscripts:article_references_edit' object.pk %}">{% trans "Edit references and citations" %}</a>
+      {% endif %}
+      {% if current_validation_report_artifact %}
+        <a class="button button-secondary" href="{% url 'manuscripts:article_validation' object.pk %}">{% trans "View validation" %}</a>
+      {% endif %}
+      {% if current_html_artifact %}
+        <a class="button button-secondary" target="_blank" href="{% url 'manuscripts:artifact_preview' current_html_artifact.pk %}">{% trans "Preview HTML" %}</a>
+      {% endif %}
+      <details>
+        <summary class="button button-secondary">{% trans "Downloads" %}</summary>
+        <div class="article-downloads-menu">
+          {% if current_pdf_artifact %}
+            <a href="{% url 'manuscripts:artifact_download' current_pdf_artifact.pk %}">{% trans "PDF" %}</a>
+          {% endif %}
+          {% if current_xml_artifact %}
+            <a href="{% url 'manuscripts:artifact_download' current_xml_artifact.pk %}">{% trans "XML" %}</a>
+          {% endif %}
+          {% if current_sps_package_artifact %}
+            <a href="{% url 'manuscripts:artifact_download' current_sps_package_artifact.pk %}">{% trans "SPS Package" %}</a>
+          {% endif %}
+          {% if current_marked_document_artifact %}
+            <a href="{% url 'manuscripts:artifact_download' current_marked_document_artifact.pk %}">{% trans "Marked DOCX" %}</a>
+          {% endif %}
+          {% if not current_pdf_artifact and not current_xml_artifact and not current_sps_package_artifact and not current_marked_document_artifact %}
+            <span style="color: var(--color-text-meta, #666);">{% trans "No current file" %}</span>
+          {% endif %}
+        </div>
+      </details>
+    </div>
+
+    {% if latest_processing %}
+      <div class="article-reprocess">
+        <form method="post" action="{% url 'manuscripts:article_reprocess' object.pk %}" class="article-reprocess-form">
+          {% csrf_token %}
+          <select name="action">
+            <option value="">{% trans "From the start" %}</option>
+            {% for value, label in action_choices %}
+              <option value="{{ value }}" {% if value == "xml_generation" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="button" type="submit">{% trans "Reprocess step and dependents" %}</button>
+        </form>
+        <div class="article-reprocess-body">
+          <div class="article-note">
+            <p>
+              <strong>{% trans "Edited structure" %}:</strong> {% trans "to use manual edits, start at" %} <strong>{% trans "Generate XML" %}</strong> {% trans "or a later step." %}
+            </p>
+          </div>
+          <div class="article-note article-note--warning">
+            <p>
+              <strong>{% trans "Attention" %}:</strong> {% trans "From the start or Mark citations re-reads the original file and may overwrite manual structure edits." %}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <details class="article-danger">
+      <summary class="button button-secondary">{% trans "Clear generated" %}</summary>
+      <div class="article-danger-body">
+        <p style="margin: 0;">
+          <strong>{% trans "Irreversible action." %}</strong>
+          {% trans "Removes artifacts, files, structural versions, local references/citations, and events from this article. The article record remains." %}
+        </p>
+        <form method="post" action="{% url 'manuscripts:article_cleanup_artifacts' object.pk %}" class="article-danger-form">
+          {% csrf_token %}
+          <input type="text" name="confirmation" placeholder="LIMPAR" autocomplete="off" required>
+          <button class="button button-secondary" type="submit" onclick="return confirm('{% trans "Remove all generated data from this article?" %}')">{% trans "Confirm cleanup" %}</button>
+        </form>
+      </div>
+    </details>
+  </section>
+
+  {% if structure %}
+    <section class="article-inspect-panel">
+      <h2>{% trans "Structure, references and citations" %}</h2>
+      <ul class="article-kpi-list">
+        <li><strong>v{{ structure.version }}</strong>{% trans "Current structure" %}</li>
+        <li><strong>{{ structure.front|length }}</strong>front</li>
+        <li><strong>{{ structure.body|length }}</strong>body</li>
+        <li><strong>{{ structure.back|length }}</strong>back</li>
+        <li><strong>{{ references|length }}</strong>{% trans "references" %}</li>
+        <li><strong>{{ citations|length }}</strong>{% trans "citations" %}</li>
+      </ul>
+      {% if structure.roundtrip_warnings %}<p class="help-block help-warning">{{ structure.roundtrip_warnings }}</p>{% endif %}
+    </section>
+  {% endif %}
+
+  <section class="article-inspect-panel">
+    <h2>{% trans "Related processings" %}</h2>
+    <table class="listing">
+      <thead>
+        <tr>
+          <th>{% trans "Processing" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "AI" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in processing_rows %}
+          {% with processing=row.processing ai=row.frontmatter_ai %}
+          <tr>
+            <td><a href="{% url 'wagtailsnippets_manuscripts_processing:inspect' processing.pk %}">{{ processing }}</a></td>
+            <td><span class="event-status {{ processing.status }}">{{ processing.get_status_display }}</span></td>
+            <td>
+              {% if ai and ai.provider %}
+                <span class="article-ai-badge">{{ ai.provider }}</span>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}
+        {% empty %}
+          <tr><td colspan="3">{% trans "No related processing." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="article-inspect-panel">
+    <h2>{% trans "Products and inputs" %}</h2>
+    <h3>{% trans "Current products" %}</h3>
+    <table class="listing">
+      <thead>
+        <tr>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Structure" %}</th>
+          <th>{% trans "Product" %}</th>
+          <th>{% trans "Created at" %}</th>
+          <th>{% trans "Processing" %}</th>
+          <th>{% trans "File" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in current_artifact_rows %}
+          {% with artifact=row.artifact %}
+          <tr>
+            <td>{{ artifact.get_artifact_type_display }}</td>
+            <td>{% if row.structure %}v{{ row.structure.version }}{% else %}-{% endif %}</td>
+            <td>v{{ artifact.version }}</td>
+            <td>{{ artifact.created|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td><a href="{% url 'wagtailsnippets_manuscripts_processing:inspect' artifact.processing.pk %}">{{ artifact.processing }}</a></td>
+            <td><a href="{% url 'manuscripts:artifact_download' artifact.pk %}">{{ row.filename }}</a></td>
+          </tr>
+          {% endwith %}
+        {% empty %}
+          <tr><td colspan="6">{% trans "No current product." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <details style="margin-top: 1rem;">
+      <summary class="article-history-summary">{% trans "View product history" %} ({{ historical_artifact_rows|length }})</summary>
+      <table class="listing" style="margin-top: 0.75rem;">
+        <thead>
+          <tr>
+            <th>{% trans "Created at" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Structure" %}</th>
+            <th>{% trans "Product" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "File" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in historical_artifact_rows %}
+            {% with artifact=row.artifact %}
+            <tr>
+              <td>{{ artifact.created|date:"SHORT_DATETIME_FORMAT" }}</td>
+              <td>{{ artifact.get_artifact_type_display }}</td>
+              <td>{% if row.structure %}v{{ row.structure.version }}{% else %}-{% endif %}</td>
+              <td>v{{ artifact.version }}</td>
+              <td>{% if artifact.is_stale %}{% trans "outdated" %}{% else %}{% trans "historical" %}{% endif %}</td>
+              <td><a href="{% url 'manuscripts:artifact_download' artifact.pk %}">{{ row.filename }}</a></td>
+            </tr>
+            {% endwith %}
+          {% empty %}
+            <tr><td colspan="6">{% trans "No historical product." %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+  </section>
+{% endblock %}
