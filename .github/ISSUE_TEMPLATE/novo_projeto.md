@@ -1,3 +1,11 @@
+---
+name: Novo Projeto
+about: Contribua com novas idéias e necessidades
+title: ''
+labels: enhancement
+assignees: ''
+---
+
 # Novo Projeto / Nova Aplicação
 
 ## Informações Gerais
