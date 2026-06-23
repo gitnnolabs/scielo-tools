@@ -1,0 +1,9 @@
+{% if settings.core_settings.customsettings.admin_logo %}
+    <img
+        src="{{ settings.core_settings.customsettings.admin_logo.file.url }}"
+        alt="{{ settings.core_settings.customsettings.name|default:'SciELO XML Tools' }}"
+        class="custom-admin-logo"
+    />
+{% else %}
+    {% include "wagtailadmin/logo.html" %}
+{% endif %}

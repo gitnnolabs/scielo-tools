@@ -1,0 +1,12 @@
+---
+description: Código sem comentários — nomes e estrutura devem bastar
+alwaysApply: true
+---
+
+# Sem comentários no código
+
+- Não adicione comentários de linha (`#`, `//`, `/* */`, `<!-- -->`, etc.) nem docstrings em código novo ou alterado.
+- Não use comentários para “desligar” linhas ou marcar TODO/FIXME no código; use issues ou tarefas.
+- Prefira nomes claros, funções pequenas e extração de métodos em vez de explicar com comentário.
+
+**Exceções (se o projeto já exigir):** cabeçalhos de licença em arquivos novos, ou comentários gerados por ferramentas que não devem ser editados manualmente.
