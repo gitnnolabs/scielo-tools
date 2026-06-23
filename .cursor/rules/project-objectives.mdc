@@ -1,0 +1,48 @@
+---
+description: Objetivos, escopo e princípios do SciELO Tools 
+alwaysApply: true
+---
+
+# SciELO Research Communication Tools (SciELO Tools)
+
+Plataforma para produção, avaliação e rastreio de objetos de comunicação de pesquisas (manuscritos, preprints, artigos, dados de pesquisa, livros, capítulos). Repositório: `scieloorg/SciELO-Tools`. O XML SPS é o registro único e rastreável de cada objeto e de cada evento do ciclo editorial.
+
+## Objetivo geral
+
+Cobrir o ciclo completo — da submissão à disseminação — com marcação assistida por IA, avaliação informada, validação, geração de múltiplos formatos e rastreio de eventos no XML, integrando-se de forma agnóstica a sistemas editoriais via API REST (sem obrigar periódicos a trocar OJS, ScholarOne, etc.).
+
+## Objetivos específicos
+
+- Suportar os seis tipos de objeto: manuscrito, preprint, artigo, dado de pesquisa, livro, capítulo.
+- Pipeline DOCX/LaTeX (e ODT como alternativa) → XML SPS com marcação assistida por LLM; revisão humana sempre possível antes de finalizar.
+- Avaliação informada: checklists (CONSORT, PRISMA, STROBE, ARRIVE) e critérios FAIR; resultados registrados no XML com avaliador e timestamp.
+- Rastreio no XML: submissão, parecer, decisão, marcação, validação, publicação — cada evento com timestamp, agente e metadados.
+- Formatos de saída a partir do XML SPS: pacote `.zip` SPS, PDF por idioma, HTML, XML Crossref/PubMed/PMC/Web of Science, JSON DOAJ; correções no XML propagam aos derivados.
+- API REST (JWT) para sistemas externos postarem eventos e operarem documentos; Wagtail embutido para quem não tem sistema editorial.
+- Bases de referência (ORCID, ROR, Fundref, ISSN, licenças, DeCS/MeSH, etc.) para autocomplete, normalização e validação.
+- Integrações SciELO: metadados via scielo.org; publicação via Upload/scms-upload → OPAC 5, com eventos de publicação de volta ao XML.
+- Implantação: desktop, intranet ou internet (Docker Compose / Kubernetes).
+
+## Dentro do escopo
+
+Conversão e marcação; validação e PDF/HTML via packtools; LLM remoto (configurável); registro de eventos e avaliação no XML; interface Wagtail; fluxo de revisão por pares nativo opcional; distribuição Docker/K8s.
+
+## Fora do escopo
+
+Substituir à força sistemas de revisão por pares já adotados; custear APIs de LLM de terceiros; desenvolver modelo de IA próprio; gestão de assinaturas ou acesso ao conteúdo publicado.
+
+## Princípios de implementação
+
+- IA auxilia marcação (destaque: referências bibliográficas); humano revisa e corrige; persistir resultados para auditoria e reuso.
+- Integração aditiva: periódicos mantêm seus fluxos; a plataforma é backbone editorial via API.
+- Conformidade SPS: validar com packtools (versão fixada no projeto).
+- Privacidade: preferir LLM on-premise; API externa é responsabilidade da instituição.
+- Stack principal: Python 3, Django 5, Wagtail 6, DRF, Celery + Redis, PostgreSQL, lxml/python-docx + packtools, apps `xml_manager`, `reference`, `model_ai`, `docx_layouts`, `tracker`.
+
+## Critérios de sucesso (referência)
+
+Redução ≥50% no tempo de marcação; ≥90% validação packtools sem erros; ≥85% precisão LLM em referências (amostragem); PDF sem defeitos críticos em revisão amostral; satisfação ≥4/5.
+
+## Especificação completa
+
+Documento de referência: `scielo_rct_v3_updated.docx` (SciELO Tools v4.0). Para detalhes de arquitetura, perfis, cronograma e glossário, consultar o RCT ou pedir `@` do ficheiro em `docs/spec/` quando existir cópia versionada no repositório.

@@ -1,0 +1,30 @@
+---
+description: Planos, tarefas, Github e descrições de PR como ficheiros MD organizados
+alwaysApply: true
+---
+
+# Entregáveis em Markdown (ficheiros no repositório)
+
+Quando o pedido for **plano**, **descrição de tarefa**, **história ou issue para Jira**, ou **texto de pull request**, **não** limite a resposta ao chat: **crie ficheiros `.md` no projeto**, bem estruturados e reutilizáveis.
+
+## Onde guardar
+
+Use a pasta **`docs/plan`**, com subpastas por tipo (crie-as se não existirem):
+
+| Tipo | Pasta sugerida | Exemplo de nome |
+|------|------------------|-----------------|
+| Plano / roadmap de execução | `docs/plans/` | `YYYY-MM-DD-nome-curto-do-plano.md` |
+| Tarefa / descrição de trabalho | `docs/tasks/` | `YYYY-MM-DD-nome-da-tarefa.md` |
+| Pull request | `docs/pr/` | `pr-nome-do-ramo-ou-tema.md` ou `YYYY-MM-DD-pr-tema.md` |
+
+Se já existir convenção no repositório (prefixos `atividade-`, `docs/github-*`, etc.), **alinhe com ela** em vez de duplicar padrões conflituosos.
+
+## Conteúdo
+
+- **Cabeçalho**: título H1, data (ISO), contexto ou link de ticket quando houver.
+- **Secções claras**: objetivo, âmbito, passos / critérios de aceite, riscos, follow-up — conforme o tipo de documento.
+- **Linguagem**: a mesma do pedido do utilizador (ex.: português), salvo indicação contrária.
+
+## Resposta no chat
+
+Depois de criar ou atualizar os ficheiros, resuma no chat **o caminho dos ficheiros** e o essencial (uma ou duas frases), para o utilizador saber onde editar ou copiar para o GitHub.

@@ -1,0 +1,57 @@
+---
+description: Insumo obrigatório em docs/pr e mensagem de commit por tarefa com código
+alwaysApply: true
+---
+
+# Insumo de PR e mensagem de commit (obrigatório)
+
+Em **todo pedido que produza ou altere código** no repositório (implementação, correção, refactor, testes novos), ao **concluir** o trabalho é **obrigatório** criar ou atualizar um ficheiro Markdown de insumo em `docs/pr/`. Não basta descrever só no chat.
+
+Pedidos **apenas informativos** (explicação, revisão sem alterações, perguntas) **não** exigem este ficheiro.
+
+## Onde guardar
+
+- Pasta: **`docs/pr/`** (criar se não existir).
+- Nome: **`YYYY-MM-DD-<tema-curto>.md`** ou **`pr-<nome-do-ramo-ou-tema>.md`**.
+- Um ficheiro por tarefa/sessão de trabalho; se o mesmo ficheiro for reutilizado no mesmo dia/tema, **atualizar** o existente em vez de duplicar.
+
+## Estrutura obrigatória do ficheiro
+
+O insumo deve conter **duas partes**, nesta ordem:
+
+### 1. Mensagem de commit
+
+Secção **`## Mensagem de commit`** com texto **pronto a colar** no `git commit`:
+
+- Primeira linha: resumo imperativo, ≤72 caracteres, em português ou inglês conforme o padrão recente do repositório.
+- Corpo opcional (linhas seguintes): o *porquê* da mudança, não só o *o quê*.
+- Não incluir ficheiros secretos, `.env` ou artefactos locais no âmbito do commit.
+
+### 2. Corpo do PR (template do projeto)
+
+Reproduzir as secções do template oficial:
+
+`.github/PULL_REQUEST_TEMPLATE/pull_request_template.md`
+
+Preencher cada secção com conteúdo concreto da tarefa atual:
+
+| Secção no insumo | Conteúdo esperado |
+|------------------|-------------------|
+| **O que esse PR faz?** | Problema resolvido ou feature entregue. |
+| **Onde a revisão poderia começar?** | Caminho(s) de ficheiro(s) para o revisor abrir primeiro. |
+| **Como este poderia ser testado manualmente?** | Passos numerados reproduzíveis. |
+| **Algum cenário de contexto que queira dar?** | Contexto editorial/técnico, decisões, limitações. |
+| **Screenshots** | Quando aplicável; senão indicar *N/A*. |
+| **Quais são tickets relevantes?** | Issue/Jira ou *N/A*. |
+| **Referências** | RCT, ADR, links externos usados. |
+
+## Comportamento do agente
+
+1. Criar ou atualizar o ficheiro em `docs/pr/` **antes** de encerrar a tarefa (junto com o código, não depois).
+2. No chat, indicar o **caminho do ficheiro** e repetir apenas a **mensagem de commit** (uma ou duas frases).
+3. Ao abrir o PR no GitHub, copiar do insumo as secções do template para a descrição do PR; a mensagem de commit vem da secção **Mensagem de commit**.
+4. Só fazer `git commit` quando o utilizador pedir explicitamente; mesmo sem commit, o insumo em `docs/pr/` é obrigatório.
+
+## Alinhamento
+
+Complementa a regra `deliverables-markdown-files.mdc` (planos, tarefas, PR). Para PRs, este ficheiro de insumo é o entregável **obrigatório** por tarefa com código.

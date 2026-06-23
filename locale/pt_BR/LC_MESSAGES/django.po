@@ -1,0 +1,1177 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-23 06:09+0000\n"
+"PO-Revision-Date: 2025-10-27 HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Portuguese <pt_BR@li.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: core/celery_wagtail.py:37
+msgid "Run"
+msgstr "Executar"
+
+#: core/celery_wagtail.py:91
+#, python-brace-format
+msgid "{0} task{1} {2} successfully {3}"
+msgstr "{0} tarefa{1} {2} com sucesso {3}"
+
+#: core/celery_wagtail.py:94 core/celery_wagtail.py:174
+msgid "was,were"
+msgstr "foi,foram"
+
+#: core/celery_wagtail.py:104
+msgid "Enable selected tasks"
+msgstr "Habilitar tarefas selecionadas"
+
+#: core/celery_wagtail.py:111
+msgid "Disable selected tasks"
+msgstr "Desabilitar tarefas selecionadas"
+
+#: core/celery_wagtail.py:126
+msgid "Toggle activity of selected tasks"
+msgstr "Alternar atividade das tarefas selecionadas"
+
+#: core/celery_wagtail.py:150
+#, python-brace-format
+msgid "task \"{0}\" not found"
+msgstr "tarefa \"{0}\" não encontrada"
+
+#: core/celery_wagtail.py:171
+#, python-brace-format
+msgid "{0} task{1} {2} successfully run"
+msgstr "{0} tarefa{1} {2} executada{1} com sucesso"
+
+#: core/celery_wagtail.py:178
+msgid "Run selected tasks"
+msgstr "Executar tarefas selecionadas"
+
+#: core/celery_wagtail.py:205
+msgid "Tarefas agendadas"
+msgstr ""
+
+#: core/celery_wagtail.py:230
+#, fuzzy, python-brace-format
+#| msgid "task \"{0}\" not found"
+msgid "Task \"{0}\" not found"
+msgstr "tarefa \"{0}\" não encontrada"
+
+#: core/celery_wagtail.py:255
+#, fuzzy, python-brace-format
+#| msgid "{0} task{1} {2} successfully run"
+msgid "Task {0} was successfully run"
+msgstr "{0} tarefa{1} {2} executada{1} com sucesso"
+
+#: core/choices.py:10
+msgid "by"
+msgstr "por"
+
+#: core/choices.py:11
+msgid "by-sa"
+msgstr "by-sa"
+
+#: core/choices.py:12
+msgid "by-nc"
+msgstr "by-nc"
+
+#: core/choices.py:13
+msgid "by-nc-sa"
+msgstr "by-nc-sa"
+
+#: core/choices.py:14
+msgid "by-nd"
+msgstr "by-nd"
+
+#: core/choices.py:15
+msgid "by-nc-nd"
+msgstr "by-nc-nd"
+
+#: core/choices.py:19
+msgid "Male"
+msgstr "Masculino"
+
+#: core/choices.py:20
+msgid "Female"
+msgstr "Feminino"
+
+#: core/home/templates/home/welcome_page.html:6
+msgid "Visit the Wagtail website"
+msgstr "Visite o site do Wagtail"
+
+#: core/home/templates/home/welcome_page.html:15
+msgid "View the release notes"
+msgstr "Ver as notas de lançamento"
+
+#: core/home/templates/home/welcome_page.html:27
+msgid "Welcome to your new Wagtail site!"
+msgstr "Bem-vindo ao seu novo site Wagtail!"
+
+#: core/home/templates/home/welcome_page.html:28
+msgid ""
+"Please feel free to <a href=\"https://github.com/wagtail/wagtail/wiki/"
+"Slack\">join our community on Slack</a>, or get started with one of the "
+"links below."
+msgstr ""
+
+#: core/home/templates/home/welcome_page.html:35
+msgid "Wagtail Documentation"
+msgstr "Documentação do Wagtail"
+
+#: core/home/templates/home/welcome_page.html:36
+msgid "Topics, references, & how-tos"
+msgstr "Tópicos, referências e guias práticos"
+
+#: core/home/templates/home/welcome_page.html:42
+msgid "Tutorial"
+msgstr "Tutorial"
+
+#: core/home/templates/home/welcome_page.html:43
+msgid "Build your first Wagtail site"
+msgstr "Construa seu primeiro site Wagtail"
+
+#: core/home/templates/home/welcome_page.html:49
+msgid "Admin Interface"
+msgstr "Interface de Administração"
+
+#: core/home/templates/home/welcome_page.html:50
+msgid "Create your superuser first!"
+msgstr "Crie seu superusuário primeiro!"
+
+#: core/models.py:29
+msgid "Creation date"
+msgstr "Data de criação"
+
+#: core/models.py:32
+msgid "Last update date"
+msgstr "Data da última atualização"
+
+#: core/models.py:37
+msgid "Creator"
+msgstr "Criador"
+
+#: core/models.py:47
+msgid "Updater"
+msgstr "Atualizador"
+
+#: core/models.py:67
+msgid "Code"
+msgstr "Código"
+
+#: core/models.py:69
+msgid "Sex"
+msgstr "Sexo"
+
+#: core/models.py:132
+msgid "Language Name"
+msgstr "Nome do Idioma"
+
+#: core/models.py:133
+msgid "Language code 2"
+msgstr "Código do idioma 2"
+
+#: core/models.py:141 core/models.py:190 core/models.py:207 core/models.py:254
+#: core/models.py:526
+msgid "Language"
+msgstr "Idioma"
+
+#: core/models.py:142
+msgid "Languages"
+msgstr "Idiomas"
+
+#: core/models.py:186
+msgid "Text"
+msgstr "Texto"
+
+#: core/models.py:202 core/models.py:250
+msgid "Rich Text"
+msgstr "Texto Rico"
+
+#: core/models.py:203
+msgid "Plain Text"
+msgstr "Texto Simples"
+
+#: core/models.py:271
+msgid "Year"
+msgstr "Ano"
+
+#: core/models.py:272
+msgid "Month"
+msgstr "Mês"
+
+#: core/models.py:273
+msgid "Day"
+msgstr "Dia"
+
+#: core/models.py:304 core/models.py:384
+msgid "License"
+msgstr "Licença"
+
+#: core/models.py:305 core/models.py:385
+msgid "Licenses"
+msgstr "Licenças"
+
+#: core/models.py:518
+msgid "File"
+msgstr "Arquivo"
+
+#: core/templates/admin/djcelery/change_list.html:6
+msgid "Home"
+msgstr ""
+
+#: core/wagtail_hooks.py:32
+msgid "Pages"
+msgstr ""
+
+#: core/wagtail_hooks.py:39
+msgid "Images"
+msgstr ""
+
+#: core/wagtail_hooks.py:46
+msgid "Documents"
+msgstr "Documentos"
+
+#: core/wagtail_hooks.py:56
+msgid "Content Manager"
+msgstr ""
+
+#: core/wagtail_hooks.py:82
+msgid "Project Wiki"
+msgstr ""
+
+#: core_settings/models.py:18 core_settings/models.py:19
+msgid "Site configuration"
+msgstr "Configuração do site"
+
+#: core_settings/models.py:66
+msgid "Site settings"
+msgstr "Configurações do site"
+
+#: core_settings/models.py:67
+msgid "Admin settings"
+msgstr "Configurações de administração"
+
+#: users/admin.py:14
+msgid "Personal info"
+msgstr "Informações pessoais"
+
+#: users/admin.py:16
+msgid "Permissions"
+msgstr "Permissões"
+
+#: users/admin.py:27
+msgid "Important dates"
+msgstr "Datas importantes"
+
+#: users/forms.py:11
+msgid "This username has already been taken."
+msgstr "Este nome de usuário já foi utilizado."
+
+#: users/models.py:15
+msgid "Name of User"
+msgstr "Nome do Usuário"
+
+#~ msgid "Editor-Chefe"
+#~ msgstr "Editor-Chefe"
+
+#~ msgid "Editor(es) Executivo"
+#~ msgstr "Editor(es) Executivo"
+
+#~ msgid "Editor(es) Associados ou de Seção"
+#~ msgstr "Editor(es) Associados ou de Seção"
+
+#~ msgid "Equipe Técnica"
+#~ msgstr "Equipe Técnica"
+
+#~ msgid "January"
+#~ msgstr "Janeiro"
+
+#~ msgid "February"
+#~ msgstr "Fevereiro"
+
+#~ msgid "March"
+#~ msgstr "Março"
+
+#~ msgid "April"
+#~ msgstr "Abril"
+
+#~ msgid "May"
+#~ msgstr "Maio"
+
+#~ msgid "June"
+#~ msgstr "Junho"
+
+#~ msgid "July"
+#~ msgstr "Julho"
+
+#~ msgid "August"
+#~ msgstr "Agosto"
+
+#~ msgid "September"
+#~ msgstr "Setembro"
+
+#~ msgid "October"
+#~ msgstr "Outubro"
+
+#~ msgid "November"
+#~ msgstr "Novembro"
+
+#~ msgid "December"
+#~ msgstr "Dezembro"
+
+#~ msgid "Task (registered)"
+#~ msgstr "Tarefa (registrada)"
+
+#~ msgid "Task (custom)"
+#~ msgstr "Tarefa (personalizada)"
+
+#~ msgid "Need name of task"
+#~ msgstr "É necessário o nome da tarefa"
+
+#~ msgid "Only one can be set, in expires and expire_seconds"
+#~ msgstr "Somente um pode ser definido, entre expires e expire_seconds"
+
+#, python-format
+#~ msgid "Unable to parse JSON: %s"
+#~ msgstr "Não foi possível analisar JSON: %s"
+
+#~ msgid "Periodic Tasks"
+#~ msgstr "Tarefas Periódicas"
+
+#~ msgid "Days"
+#~ msgstr "Dias"
+
+#~ msgid "Hours"
+#~ msgstr "Horas"
+
+#~ msgid "Minutes"
+#~ msgstr "Minutos"
+
+#~ msgid "Seconds"
+#~ msgstr "Segundos"
+
+#~ msgid "Microseconds"
+#~ msgstr "Microssegundos"
+
+#~ msgid "Hour"
+#~ msgstr "Hora"
+
+#~ msgid "Minute"
+#~ msgstr "Minuto"
+
+#~ msgid "Second"
+#~ msgstr "Segundo"
+
+#~ msgid "Microsecond"
+#~ msgstr "Microssegundo"
+
+#~ msgid "Astronomical dawn"
+#~ msgstr "Alvorecer astronômico"
+
+#~ msgid "Civil dawn"
+#~ msgstr "Alvorecer civil"
+
+#~ msgid "Nautical dawn"
+#~ msgstr "Alvorecer náutico"
+
+#~ msgid "Astronomical dusk"
+#~ msgstr "Anoitecer astronômico"
+
+#~ msgid "Civil dusk"
+#~ msgstr "Anoitecer civil"
+
+#~ msgid "Nautical dusk"
+#~ msgstr "Anoitecer náutico"
+
+#~ msgid "Solar noon"
+#~ msgstr "Meio-dia solar"
+
+#~ msgid "Sunrise"
+#~ msgstr "Nascer do sol"
+
+#~ msgid "Sunset"
+#~ msgstr "Pôr do sol"
+
+#~ msgid "Solar Event"
+#~ msgstr "Evento Solar"
+
+#~ msgid "The type of solar event when the job should run"
+#~ msgstr "O tipo de evento solar quando o trabalho deve ser executado"
+
+#~ msgid "Latitude"
+#~ msgstr "Latitude"
+
+#~ msgid "Run the task when the event happens at this latitude"
+#~ msgstr "Executar a tarefa quando o evento ocorrer nesta latitude"
+
+#~ msgid "Longitude"
+#~ msgstr "Longitude"
+
+#~ msgid "Run the task when the event happens at this longitude"
+#~ msgstr "Executar a tarefa quando o evento ocorrer nesta longitude"
+
+#~ msgid "solar event"
+#~ msgstr "evento solar"
+
+#~ msgid "solar events"
+#~ msgstr "eventos solares"
+
+#~ msgid "Number of Periods"
+#~ msgstr "Número de Períodos"
+
+#~ msgid "Number of interval periods to wait before running the task again"
+#~ msgstr ""
+#~ "Número de períodos de intervalo para esperar antes de executar a tarefa "
+#~ "novamente"
+
+#~ msgid "Interval Period"
+#~ msgstr "Período de Intervalo"
+
+#~ msgid "The type of period between task runs (Example: days)"
+#~ msgstr "O tipo de período entre execuções de tarefas (Exemplo: dias)"
+
+#~ msgid "interval"
+#~ msgstr "intervalo"
+
+#~ msgid "intervals"
+#~ msgstr "intervalos"
+
+#~ msgid "Minute (integer from 0-59)"
+#~ msgstr "Minuto (inteiro de 0-59)"
+
+#~ msgid "Hour (integer from 0-23)"
+#~ msgstr "Hora (inteiro de 0-23)"
+
+#~ msgid "Day of the week (0-6, 0 is Sunday, or 'mon', 'tue', etc.)"
+#~ msgstr "Dia da semana (0-6, 0 é Domingo, ou 'mon', 'tue', etc.)"
+
+#~ msgid "Day of the month (1-31)"
+#~ msgstr "Dia do mês (1-31)"
+
+#~ msgid "Month of the year (1-12)"
+#~ msgstr "Mês do ano (1-12)"
+
+#~ msgid "Timezone"
+#~ msgstr "Fuso horário"
+
+#~ msgid ""
+#~ "The human-readable timezone name that this schedule will follow (e.g. "
+#~ "'Europe/Berlin')"
+#~ msgstr ""
+#~ "O nome legível do fuso horário que este agendamento seguirá (ex. 'America/"
+#~ "Sao_Paulo')"
+
+#~ msgid "crontab"
+#~ msgstr "crontab"
+
+#~ msgid "crontabs"
+#~ msgstr "crontabs"
+
+#~ msgid "Name"
+#~ msgstr "Nome"
+
+#~ msgid "Event"
+#~ msgstr "Evento"
+
+#~ msgid "Clocked Time"
+#~ msgstr "Hora Programada"
+
+#~ msgid "clocked schedule"
+#~ msgstr "agendamento programado"
+
+#~ msgid "clocked schedules"
+#~ msgstr "agendamentos programados"
+
+#~ msgid "seconds"
+#~ msgstr "segundos"
+
+#~ msgid "positional arguments"
+#~ msgstr "argumentos posicionais"
+
+#~ msgid "JSON encoded positional arguments (Example: [\"arg1\", \"arg2\"])"
+#~ msgstr ""
+#~ "Argumentos posicionais codificados em JSON (Exemplo: [\"arg1\", \"arg2\"])"
+
+#~ msgid "keyword arguments"
+#~ msgstr "argumentos de palavras-chave"
+
+#~ msgid "JSON encoded keyword arguments (Example: {\"argument\": \"value\"})"
+#~ msgstr ""
+#~ "Argumentos de palavras-chave codificados em JSON (Exemplo: {\"argument\": "
+#~ "\"value\"})"
+
+#~ msgid "queue"
+#~ msgstr "fila"
+
+#~ msgid "exchange"
+#~ msgstr "exchange"
+
+#~ msgid "routing key"
+#~ msgstr "chave de roteamento"
+
+#~ msgid "headers"
+#~ msgstr "cabeçalhos"
+
+#~ msgid "JSON encoded message headers for the AMQP message."
+#~ msgstr "Cabeçalhos de mensagem codificados em JSON para a mensagem AMQP."
+
+#~ msgid "priority"
+#~ msgstr "prioridade"
+
+#~ msgid "Priority Number between 0 and 255. Supported by: RabbitMQ."
+#~ msgstr "Número de prioridade entre 0 e 255. Suportado por: RabbitMQ."
+
+#~ msgid "expires"
+#~ msgstr "expira"
+
+#~ msgid ""
+#~ "Datetime after which the schedule will no longer trigger the task to run"
+#~ msgstr ""
+#~ "Data e hora após as quais o agendamento não acionará mais a execução da "
+#~ "tarefa"
+
+#~ msgid "expire seconds"
+#~ msgstr "segundos de expiração"
+
+#~ msgid ""
+#~ "Timedelta with seconds which the schedule will no longer trigger the task "
+#~ "to run"
+#~ msgstr ""
+#~ "Timedelta em segundos após o qual o agendamento não acionará mais a "
+#~ "execução da tarefa"
+
+#~ msgid "one-off task"
+#~ msgstr "tarefa única"
+
+#~ msgid "If True, the schedule will only run the task a single time"
+#~ msgstr "Se True, o agendamento executará a tarefa apenas uma vez"
+
+#~ msgid "start datetime"
+#~ msgstr "data e hora de início"
+
+#~ msgid "Datetime when the schedule should begin triggering the task to run"
+#~ msgstr ""
+#~ "Data e hora em que o agendamento deve começar a acionar a execução da "
+#~ "tarefa"
+
+#~ msgid "enabled"
+#~ msgstr "habilitado"
+
+#~ msgid "Set to False to disable the schedule"
+#~ msgstr "Definir como False para desabilitar o agendamento"
+
+#~ msgid "last run at"
+#~ msgstr "última execução em"
+
+#~ msgid ""
+#~ "Datetime that the schedule last triggered the task to run. Reset to None "
+#~ "if enabled is set to False."
+#~ msgstr ""
+#~ "Data e hora em que o agendamento acionou pela última vez a execução da "
+#~ "tarefa. Redefinido para None se enabled for definido como False."
+
+#~ msgid "total run count"
+#~ msgstr "contagem total de execuções"
+
+#~ msgid "Running count of how many times the schedule has triggered the task"
+#~ msgstr "Contagem de quantas vezes o agendamento acionou a tarefa"
+
+#~ msgid "datetime changed"
+#~ msgstr "data e hora alterada"
+
+#~ msgid "Datetime that this PeriodicTask was last modified"
+#~ msgstr "Data e hora em que esta PeriodicTask foi modificada pela última vez"
+
+#~ msgid "description"
+#~ msgstr "descrição"
+
+#~ msgid "Detailed description about the details of this Periodic Task"
+#~ msgstr "Descrição detalhada sobre os detalhes desta Tarefa Periódica"
+
+#~ msgid ""
+#~ "Only one schedule can be selected: Interval, Crontab, Solar, or Clocked"
+#~ msgstr ""
+#~ "Apenas um agendamento pode ser selecionado: Intervalo, Crontab, Solar ou "
+#~ "Programado"
+
+#~ msgid "One of interval, crontab, solar, or clocked must be set."
+#~ msgstr "Um de intervalo, crontab, solar ou programado deve ser definido."
+
+#~ msgid "periodic task"
+#~ msgstr "tarefa periódica"
+
+#~ msgid "periodic tasks"
+#~ msgstr "tarefas periódicas"
+
+#~ msgid "enabled,disabled"
+#~ msgstr "habilitada,desabilitada"
+
+#~ msgid "Periodic tasks"
+#~ msgstr "Tarefas periódicas"
+
+#~ msgid "Site ID"
+#~ msgstr "ID do Site"
+
+#~ msgid "Short title"
+#~ msgstr "Título abreviado"
+
+#~ msgid "Journal ISSN"
+#~ msgstr "ISSN da Revista"
+
+#~ msgid "Online Journal ISSN"
+#~ msgstr "ISSN da Revista Online"
+
+#~ msgid "ISSN SciELO"
+#~ msgstr "ISSN SciELO"
+
+#~ msgid "ISSN SciELO Legacy"
+#~ msgstr "ISSN SciELO Legacy"
+
+#~ msgid "Subject descriptors"
+#~ msgstr "Descritores de assunto"
+
+#~ msgid "Purpose"
+#~ msgstr "Propósito"
+
+#~ msgid "Sponsorship"
+#~ msgstr "Patrocínio"
+
+#~ msgid "Mission"
+#~ msgstr "Missão"
+
+#~ msgid "Index at"
+#~ msgstr "Indexado em"
+
+#~ msgid "Availability"
+#~ msgstr "Disponibilidade"
+
+#~ msgid "Summary form"
+#~ msgstr "Forma de resumo"
+
+#~ msgid "Standard"
+#~ msgstr "Padrão"
+
+#~ msgid "Alphabet title"
+#~ msgstr "Título alfabético"
+
+#~ msgid "Print title"
+#~ msgstr "Título impresso"
+
+#~ msgid "Short title (slug)"
+#~ msgstr "Título abreviado (slug)"
+
+#~ msgid "Title"
+#~ msgstr "Título"
+
+#~ msgid "Subtitle"
+#~ msgstr "Subtítulo"
+
+#~ msgid "Next title"
+#~ msgstr "Título seguinte"
+
+#~ msgid "Previous title"
+#~ msgstr "Título anterior"
+
+#~ msgid "Control number"
+#~ msgstr "Número de controle"
+
+#~ msgid "Publisher name"
+#~ msgstr "Nome do editor"
+
+#~ msgid "Publisher country"
+#~ msgstr "País do editor"
+
+#~ msgid "Publisher state"
+#~ msgstr "Estado do editor"
+
+#~ msgid "Publisher city"
+#~ msgstr "Cidade do editor"
+
+#~ msgid "Publisher address"
+#~ msgstr "Endereço do editor"
+
+#~ msgid "Publication level"
+#~ msgstr "Nível de publicação"
+
+#~ msgid "Email"
+#~ msgstr "E-mail"
+
+#~ msgid "URL online submission"
+#~ msgstr "URL de submissão online"
+
+#~ msgid "URL home page"
+#~ msgstr "URL da página inicial"
+
+#~ msgid "Journal"
+#~ msgstr "Revista"
+
+#~ msgid "Journals"
+#~ msgstr "Revistas"
+
+#~ msgid "Order"
+#~ msgstr "Ordem"
+
+#~ msgid "Editor"
+#~ msgstr "Editor"
+
+#~ msgid "Editors"
+#~ msgstr "Editores"
+
+#~ msgid "Journal and Editor"
+#~ msgstr "Revista e Editor"
+
+#~ msgid "Country Name"
+#~ msgstr "Nome do País"
+
+#~ msgid "ACR3"
+#~ msgstr "ACR3"
+
+#~ msgid "ACR2"
+#~ msgstr "ACR2"
+
+#~ msgid "Country"
+#~ msgstr "País"
+
+#~ msgid "Countries"
+#~ msgstr "Países"
+
+#~ msgid "State name"
+#~ msgstr "Nome do estado"
+
+#~ msgid "ACR 2 (state)"
+#~ msgstr "ACR 2 (estado)"
+
+#~ msgid "State"
+#~ msgstr "Estado"
+
+#~ msgid "States"
+#~ msgstr "Estados"
+
+#~ msgid "City name"
+#~ msgstr "Nome da cidade"
+
+#~ msgid "City"
+#~ msgstr "Cidade"
+
+#~ msgid "Cities"
+#~ msgstr "Cidades"
+
+#~ msgid "Location"
+#~ msgstr "Localização"
+
+#~ msgid "Document without content"
+#~ msgstr "Documento sem conteúdo"
+
+#~ msgid "Structured document without references"
+#~ msgstr "Documento estruturado sem referências"
+
+#~ msgid "Structured document"
+#~ msgstr "Documento estruturado"
+
+#~ msgid "Structured document and references"
+#~ msgstr "Documento estruturado e referências"
+
+#~ msgid "DOI"
+#~ msgstr "DOI"
+
+#~ msgid "Rich Title"
+#~ msgstr "Título Rico"
+
+#~ msgid "Clean Title"
+#~ msgstr "Título Limpo"
+
+#~ msgid "Document"
+#~ msgstr "Documento"
+
+#~ msgid "Type"
+#~ msgstr "Tipo"
+
+#~ msgid "Paragraph"
+#~ msgstr "Parágrafo"
+
+#~ msgid "Paragraphs"
+#~ msgstr "Parágrafos"
+
+#~ msgid "Section title"
+#~ msgstr "Título da seção"
+
+#~ msgid "Section code"
+#~ msgstr "Código da seção"
+
+#~ msgid "Section"
+#~ msgstr "Seção"
+
+#~ msgid "Sections"
+#~ msgstr "Seções"
+
+#~ msgid "Figure"
+#~ msgstr "Figura"
+
+#~ msgid "Figures"
+#~ msgstr "Figuras"
+
+#~ msgid "Table"
+#~ msgstr "Tabela"
+
+#~ msgid "Tables"
+#~ msgstr "Tabelas"
+
+#~ msgid "Supplementary Material"
+#~ msgstr "Material Suplementar"
+
+#~ msgid "Supplementary Materials"
+#~ msgstr "Materiais Suplementares"
+
+#~ msgid "Document ID"
+#~ msgstr "ID do Documento"
+
+#~ msgid "Document ID type"
+#~ msgstr "Tipo de ID do documento"
+
+#~ msgid "Publisher ID"
+#~ msgstr "ID do Editor"
+
+#~ msgid "Pub Acronym"
+#~ msgstr "Acrônimo da Publicação"
+
+#~ msgid "Vol"
+#~ msgstr "Vol"
+
+#~ msgid "Suppl Vol"
+#~ msgstr "Supl Vol"
+
+#~ msgid "Num"
+#~ msgstr "Núm"
+
+#~ msgid "Suppl Num"
+#~ msgstr "Supl Núm"
+
+#~ msgid "Isid Part"
+#~ msgstr "Parte Isid"
+
+#~ msgid "Dateiso"
+#~ msgstr "Data ISO"
+
+#~ msgid "Month/Season"
+#~ msgstr "Mês/Estação"
+
+#~ msgid "First Page"
+#~ msgstr "Primeira Página"
+
+#~ msgid "@Seq"
+#~ msgstr "@Seq"
+
+#~ msgid "Last Page"
+#~ msgstr "Última Página"
+
+#~ msgid "Elocation ID"
+#~ msgstr "ID de Elocation"
+
+#~ msgid "Order (In TOC)"
+#~ msgstr "Ordem (No Sumário)"
+
+#~ msgid "Pag count"
+#~ msgstr "Contagem de Páginas"
+
+#~ msgid "Doc Topic"
+#~ msgstr "Tópico do Documento"
+
+#~ msgid "Sps version"
+#~ msgstr "Versão SPS"
+
+#~ msgid "Artdate"
+#~ msgstr "Data do Artigo"
+
+#~ msgid "Ahpdate"
+#~ msgstr "Data AHP"
+
+#~ msgid "Document xml"
+#~ msgstr "XML do documento"
+
+#~ msgid "Text XML"
+#~ msgstr "Texto XML"
+
+#~ msgid "Details"
+#~ msgstr "Detalhes"
+
+#~ msgid "Documents Markup"
+#~ msgstr "Marcação de Documentos"
+
+#~ msgid "Carregar DOCX"
+#~ msgstr "Carregar DOCX"
+
+#~ msgid "XML marcado"
+#~ msgstr "XML marcado"
+
+#~ msgid "Modelo de Coleções"
+#~ msgstr "Modelo de Coleções"
+
+#~ msgid "Modelo de Revistas"
+#~ msgstr "Modelo de Revistas"
+
+#~ msgid "DOCX Files"
+#~ msgstr "Arquivos DOCX"
+
+#~ msgid "No model"
+#~ msgstr "Sem modelo"
+
+#~ msgid "Downloading model"
+#~ msgstr "Baixando modelo"
+
+#~ msgid "Model downloaded"
+#~ msgstr "Modelo baixado"
+
+#~ msgid "Download error"
+#~ msgstr "Erro no download"
+
+#~ msgid "Hugging Face model name"
+#~ msgstr "Nome do modelo Hugging Face"
+
+#~ msgid "Model file"
+#~ msgstr "Arquivo do modelo"
+
+#~ msgid "Hugging Face token"
+#~ msgstr "Token do Hugging Face"
+
+#~ msgid "Local model status"
+#~ msgstr "Status do modelo local"
+
+#~ msgid "URL Markapi"
+#~ msgstr "URL Markapi"
+
+#~ msgid "API KEY Gemini"
+#~ msgstr "Chave API Gemini"
+
+#~ msgid "Model name is required."
+#~ msgstr "O nome do modelo é obrigatório."
+
+#~ msgid "Model file is required."
+#~ msgstr "O arquivo do modelo é obrigatório."
+
+#~ msgid "Hugging Face token is required."
+#~ msgstr "O token do Hugging Face é obrigatório."
+
+#~ msgid "Model created and download started."
+#~ msgstr "Modelo criado e download iniciado."
+
+#~ msgid "API AI URL is required."
+#~ msgstr "A URL da API AI é obrigatória."
+
+#~ msgid "Model created, use API AI."
+#~ msgstr "Modelo criado, usar API AI."
+
+#~ msgid "Model updated and download started."
+#~ msgstr "Modelo atualizado e download iniciado."
+
+#~ msgid "Model updated and already downloaded."
+#~ msgstr "Modelo atualizado e já baixado."
+
+#~ msgid "Model updated, use API AI."
+#~ msgstr "Modelo atualizado, usar API AI."
+
+#~ msgid "AI LLM Model"
+#~ msgstr "Modelo LLM de IA"
+
+#~ msgid "No reference"
+#~ msgstr "Sem referência"
+
+#~ msgid "Creating reference"
+#~ msgstr "Criando referência"
+
+#~ msgid "Reference ready"
+#~ msgstr "Referência pronta"
+
+#~ msgid "Mixed Citation"
+#~ msgstr "Citação mista"
+
+#~ msgid "Reference status"
+#~ msgstr "Status da referência"
+
+#~ msgid "Cited Elements"
+#~ msgstr "Elementos Citados"
+
+#~ msgid "Marked"
+#~ msgstr "Marcado"
+
+#~ msgid "Marked XML"
+#~ msgstr "XML Marcado"
+
+#~ msgid "Rating from 1 to 10"
+#~ msgstr "Classificação de 1 a 10"
+
+#~ msgid "Reference"
+#~ msgstr "Referência"
+
+#~ msgid "error"
+#~ msgstr "erro"
+
+#~ msgid "warning"
+#~ msgstr "aviso"
+
+#~ msgid "info"
+#~ msgstr "informação"
+
+#~ msgid "exception"
+#~ msgstr "exceção"
+
+#~ msgid "To reprocess"
+#~ msgstr "Para reprocessar"
+
+#~ msgid "To do"
+#~ msgstr "A fazer"
+
+#~ msgid "Done"
+#~ msgstr "Concluído"
+
+#~ msgid "Doing"
+#~ msgstr "Fazendo"
+
+#~ msgid "Pending"
+#~ msgstr "Pendente"
+
+#~ msgid "ignored"
+#~ msgstr "ignorado"
+
+#~ msgid "XML Parsing Error"
+#~ msgstr "Erro de Análise XML"
+
+#~ msgid "XML Validation Error"
+#~ msgstr "Erro de Validação XML"
+
+#~ msgid "XML Conversion to DOCX Error"
+#~ msgstr "Erro de Conversão XML para DOCX"
+
+#~ msgid "XML Conversion to HTML Error"
+#~ msgstr "Erro de Conversão XML para HTML"
+
+#~ msgid "XML Conversion to PDF Error"
+#~ msgstr "Erro de Conversão XML para PDF"
+
+#~ msgid "XML Conversion to TEX Error"
+#~ msgstr "Erro de Conversão XML para TEX"
+
+#~ msgid "Unknown Error"
+#~ msgstr "Erro Desconhecido"
+
+#~ msgid "Error Type"
+#~ msgstr "Tipo de Erro"
+
+#~ msgid "Data"
+#~ msgstr "Dados"
+
+#~ msgid "Message"
+#~ msgstr "Mensagem"
+
+#~ msgid "Handled"
+#~ msgstr "Tratado"
+
+#~ msgid "XML Document Event"
+#~ msgstr "Evento de Documento XML"
+
+#~ msgid "XML Document Events"
+#~ msgstr "Eventos de Documento XML"
+
+#~ msgid "Exception Type"
+#~ msgstr "Tipo de Exceção"
+
+#~ msgid "Exception Msg"
+#~ msgstr "Mensagem de Exceção"
+
+#~ msgid "Item"
+#~ msgstr "Item"
+
+#~ msgid "Action"
+#~ msgstr "Ação"
+
+#~ msgid "General Event"
+#~ msgstr "Evento Geral"
+
+#~ msgid "General Events"
+#~ msgstr "Eventos Gerais"
+
+#~ msgid "Unexpected Events"
+#~ msgstr "Eventos Inesperados"
+
+#~ msgid "XML File"
+#~ msgstr "Arquivo XML"
+
+#~ msgid "Upload an XML file for processing."
+#~ msgstr "Enviar um arquivo XML para processamento."
+
+#~ msgid "Validation File"
+#~ msgstr "Arquivo de Validação"
+
+#~ msgid "Exceptions File"
+#~ msgstr "Arquivo de Exceções"
+
+#~ msgid "Uploaded At"
+#~ msgstr "Enviado Em"
+
+#~ msgid "The date and time when the file was uploaded."
+#~ msgstr "A data e hora em que o arquivo foi enviado."
+
+#~ msgid "XML Document"
+#~ msgstr "Documento XML"
+
+#~ msgid "XML Documents"
+#~ msgstr "Documentos XML"
+
+#~ msgid "PDF File"
+#~ msgstr "Arquivo PDF"
+
+#~ msgid "DOCX File"
+#~ msgstr "Arquivo DOCX"
+
+#~ msgid "Intermediate DOCX file generated during PDF creation"
+#~ msgstr "Arquivo DOCX intermediário gerado durante a criação do PDF"
+
+#~ msgid "Language code or name"
+#~ msgstr "Código ou nome do idioma"
+
+#~ msgid "XML Document PDF"
+#~ msgstr "PDF de Documento XML"
+
+#~ msgid "XML Document PDFs"
+#~ msgstr "PDFs de Documento XML"
+
+#~ msgid "HTML File"
+#~ msgstr "Arquivo HTML"
+
+#~ msgid "XML Document HTML"
+#~ msgstr "HTML de Documento XML"
+
+#~ msgid "XML Document HTMLs"
+#~ msgstr "HTMLs de Documento XML"
+
+#~ msgid "Validation file"
+#~ msgstr "Arquivo de validação"
+
+#~ msgid "Exceptions file"
+#~ msgstr "Arquivo de exceções"
+
+#~ msgid "XML Processor"
+#~ msgstr "Processador XML"
+
+#~ msgid "XML Files"
+#~ msgstr "Arquivos XML"
+
+#~ msgid "Tarefas"
+#~ msgstr "Tarefas"
+
+#~ msgid "You must first select a collection."
+#~ msgstr "Você deve primeiro selecionar uma coleção."
+
+#~ msgid "Wait a moment, there are no Journal elements yet."
+#~ msgstr "Aguarde um momento, ainda não existem elementos em Journal."
+
+#~ msgid "Synchronizing journals from the API, please wait a moment..."
+#~ msgstr "Sincronizando revistas da API, aguarde um momento..."

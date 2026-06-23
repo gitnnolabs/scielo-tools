@@ -1,0 +1,24 @@
+---
+description: Extrair função só quando houver reuso em pelo menos dois trechos
+alwaysApply: true
+---
+
+# Funções apenas com reuso
+
+- **Não** crie funções (nem métodos privados auxiliares) só para “organizar” um único fluxo ou dar nome a um bloco usado **uma vez**.
+- **Crie** uma função quando a mesma lógica for necessária em **dois ou mais** trechos de código (reuso real).
+
+## O que fazer em vez disso
+
+- Deixe o fluxo linear no escopo onde é usado uma vez.
+- Use variáveis com nomes claros e blocos curtos em vez de micro-funções de uso único.
+
+## Exceções raras
+
+- **Framework / contrato**: funções ou métodos que o Django, Celery, etc. exigem como ponto de entrada (view, `action`, task, signal handler) — mesmo com um único registo, a função é o mecanismo obrigatório.
+- **Testes**: fixtures/helpers partilhados por vários testes, conforme o ficheiro.
+- **Código gerado** ou boilerplate obrigatório do projeto.
+
+## Parâmetros
+
+- Não adicionar * nas função a não ser que seja solicitado.
