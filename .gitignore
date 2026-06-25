@@ -29,6 +29,9 @@ build/
 coverage/
 htmlcov/
 
+# Docs
+docs/
+
 # OS
 .DS_Store
 Thumbs.db
