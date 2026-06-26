@@ -1,10 +1,9 @@
 import os
 
 from django.db.models.signals import pre_save
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from wagtail import hooks
-from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
+from wagtail.admin.menu import MenuItem
 from wagtail.images import get_image_model
 
 from core.celery_wagtail import *  # noqa: F401,F403
@@ -23,56 +22,10 @@ pre_save.connect(ensure_image_title, sender=get_image_model())
 
 
 @hooks.register("construct_main_menu")
-def group_wagtail_cms_menu_items(request, menu_items):
-    cms_item_names = {"explorer", "images", "documents", "xml_sps"}
-    menu_items[:] = [item for item in menu_items if item.name not in cms_item_names]
-    cms_menu = Menu(
-        items=[
-            MenuItem(
-                _("Pages"),
-                reverse("wagtailadmin_explore_root"),
-                name="cms_pages",
-                icon_name="doc-empty-inverse",
-                order=100,
-            ),
-            MenuItem(
-                _("Images"),
-                reverse("wagtailimages:index"),
-                name="cms_images",
-                icon_name="image",
-                order=200,
-            ),
-            MenuItem(
-                _("Documents"),
-                reverse("wagtaildocs:index"),
-                name="cms_documents",
-                icon_name="doc-full-inverse",
-                order=300,
-            ),
-        ]
-    )
-    menu_items.append(
-        SubmenuMenuItem(
-            _("Content Manager"),
-            cms_menu,
-            icon_name="folder-open-inverse",
-            name="wagtail_cms",
-            order=800,
-        )
-    )
-    settings_index = next(
-        (index for index, item in enumerate(menu_items) if item.name == "settings"),
-        None,
-    )
-    report_index = next(
-        (index for index, item in enumerate(menu_items) if item.name == "reports"),
-        None,
-    )
-    if settings_index is not None and report_index is not None:
-        reports_item = menu_items.pop(report_index)
-        if report_index < settings_index:
-            settings_index -= 1
-        menu_items.insert(settings_index + 1, reports_item)
+def keep_only_sps_validation_menu(request, menu_items):
+    menu_items[:] = [
+        item for item in menu_items if item.name == "sps_package_validation"
+    ]
 
 
 @hooks.register("construct_help_menu")
@@ -87,4 +40,3 @@ def replace_help_menu_items(request, help_menu_items):
             order=100,
         )
     ]
-
