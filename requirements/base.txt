@@ -1,4 +1,4 @@
-setuptools>=68.2.2,<82
+setuptools>=68.2.2,<81
 whitenoise==6.12.0  # https://github.com/evansd/whitenoise
 redis==7.4.0  # https://github.com/redis/redis-py
 celery==5.3.6  # pyup: < 6.0  # https://github.com/celery/celery
@@ -24,6 +24,8 @@ git+https://git@github.com/scieloorg/packtools@4.12.6#egg=packtools
 tenacity==8.2.3
 langdetect~=1.0.9
 requests>=2.31.0
+google-generativeai
+huggingface_hub
 
 # Kombu
 # ------------------------------------------------------------------------------

@@ -1,0 +1,34 @@
+Preciso criar uma sequencia de issue no github como tarefa.
+
+
+IA:
+
+    Crie todas os nomes das aplicações no singular.
+
+
+    Todas as aplicações mencionadas aqui estão em ../scielo-tools-initial
+
+    Preciso trazer a aplicação de ia para esse projeto.
+
+    * preciso garanti que seja uma aplicação django auto suficiente. 
+    * que tenha banco de dados próprio (migrations própria). 
+    * que tenha suas próprias telas no wagtail. 
+    * que tenha suas próprias APIs.
+    * que possa ser reutilizada em outro projeto.
+
+    Faça somente o isso dessa atividade por agora 
+
+
+
+refenreces:
+
+    Dentro de manuscripts existe um fluxo/código que realizar a marcação das referencias. 
+
+    Preciso ter a marcação das referencias de forma isolada e reutilizada em outras aplicações
+
+    Preciso ter uma API REST que possa utilizar dessa marcação. 
+
+    Suspeito fortemente que estamos utilizando diversos modelos de IA para realizar essa marcação. 
+
+    
+ Faça somente o isso dessa atividade por agora 
