@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -40,7 +41,7 @@ WAGTAIL = [
     "core.home",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
-    'wagtail.contrib.settings',
+    "wagtail.contrib.settings",
     "wagtail_modeladmin",
     "wagtail.embeds",
     "wagtail.sites",
@@ -63,13 +64,15 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_celery_results"
+    "django_celery_results",
 ]
 
 THIRD_PARTY_APPS = [
     "compressor",
     "wagtailautocomplete",
     "django_celery_beat",
+    "rest_framework",
+    "wagtail_json_widget",
 ]
 
 LOCAL_APPS = [
@@ -77,6 +80,7 @@ LOCAL_APPS = [
     "core",
     "core_settings",
     "xml_manager",
+    "reference",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + WAGTAIL
@@ -85,7 +89,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    'django.middleware.locale.LocaleMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -106,7 +110,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                'wagtail.contrib.settings.context_processors.settings',
+                "wagtail.contrib.settings.context_processors.settings",
             ],
         },
     },
@@ -145,13 +149,13 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "en"
 
 LANGUAGES = [
-    ('pt-br', 'Português (Brasil)'),
-    ('es', 'Español'),
-    ('en', 'English'),
+    ("pt-br", "Português (Brasil)"),
+    ("es", "Español"),
+    ("en", "English"),
 ]
 
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
+    os.path.join(BASE_DIR, "locale"),
 ]
 
 TIME_ZONE = "UTC"
@@ -239,10 +243,22 @@ WAGTAILIMAGES_EXTENSIONS = [
 # This can be omitted to allow all files, but note that this may present a security risk
 # if untrusted users are allowed to upload files -
 # see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
-WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'json', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip']
+WAGTAILDOCS_EXTENSIONS = [
+    "csv",
+    "docx",
+    "json",
+    "key",
+    "odt",
+    "pdf",
+    "pptx",
+    "rtf",
+    "txt",
+    "xlsx",
+    "zip",
+]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = "users.CustomUser"
 
 # Celery
 # ------------------------------------------------------------------------------
@@ -269,13 +285,13 @@ CELERY_TASK_SOFT_TIME_LIMIT = 36000
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html
 DJANGO_CELERY_BEAT_TZ_AWARE = False
-#CELERY PROMETHEUS DASHBOARD
+# CELERY PROMETHEUS DASHBOARD
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-send-task-events
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#std-setting-task_send_sent_event
 CELERY_SEND_TASK_SENT_EVENT = True
 CELERYD_SEND_EVENTS = True
-CE_BUCKETS=1,2.5,5,10,30,60,300,600,900,1800
+CE_BUCKETS = 1, 2.5, 5, 10, 30, 60, 300, 600, 900, 1800
 
 # Celery Results
 # ------------------------------------------------------------------------------
@@ -285,3 +301,25 @@ CELERY_CACHE_BACKEND = "django-cache"
 CELERY_RESULT_EXTENDED = True
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+SILENCED_SYSTEM_CHECKS = ["treebeard.E001"]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": env.int("DRF_PAGE_SIZE", default=10),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+}
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+REFERENCE_ENABLED = env.bool("REFERENCE_ENABLED", default=True)
+REFERENCE_URL = env("REFERENCE_URL", default="")
+REFERENCE_MODEL = env("REFERENCE_MODEL", default="llama3.2:3b")
+REFERENCE_TIMEOUT = env.int("REFERENCE_TIMEOUT", default=300)
+REFERENCE_TOKEN = env("REFERENCE_TOKEN", default="")

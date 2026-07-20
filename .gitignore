@@ -11,6 +11,7 @@ venv/
 .envs
 .envs.local
 *.envs
+.token
 
 # Logs
 *.log

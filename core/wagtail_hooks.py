@@ -21,13 +21,6 @@ def ensure_image_title(sender, instance, **kwargs):
 pre_save.connect(ensure_image_title, sender=get_image_model())
 
 
-@hooks.register("construct_main_menu")
-def keep_only_sps_validation_menu(request, menu_items):
-    menu_items[:] = [
-        item for item in menu_items if item.name == "sps_package_validation"
-    ]
-
-
 @hooks.register("construct_help_menu")
 def replace_help_menu_items(request, help_menu_items):
     help_menu_items[:] = [

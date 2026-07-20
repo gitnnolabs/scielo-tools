@@ -11,6 +11,7 @@ services:
       - redis
       - postgres
       - mailhog
+      - ollama
     volumes:
       - .:/app:z
       # - ../packtools:/packtools:z
@@ -20,6 +21,14 @@ services:
     ports:
       - "8000:8000"
     command: /start
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: scielo_tools_local_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
 
   mailhog:
     image: mailhog/mailhog:v1.0.0
@@ -55,6 +64,7 @@ services:
       - redis
       - postgres
       - mailhog
+      - ollama
     ports: []
     command: /start-celeryworker
 
@@ -66,5 +76,9 @@ services:
       - redis
       - postgres
       - mailhog
+      - ollama
     ports: []
     command: /start-celerybeat
+
+volumes:
+  ollama_data:

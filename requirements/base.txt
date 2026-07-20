@@ -1,4 +1,4 @@
-setuptools>=68.2.2,<82
+setuptools>=68.2.2,<81
 whitenoise==6.12.0  # https://github.com/evansd/whitenoise
 redis==7.4.0  # https://github.com/redis/redis-py
 celery==5.3.6  # pyup: < 6.0  # https://github.com/celery/celery
@@ -8,15 +8,19 @@ hiredis==2.2.3  # https://github.com/redis/hiredis-py
 # ------------------------------------------------------------------------------
 django==6.0.5
 django-environ==0.13.0
+djangorestframework==3.17.1
+djangorestframework-simplejwt==5.5.1
 django-celery-beat==2.9.0  # https://github.com/celery/django-celery-beat
 django_celery_results==2.6.0
 django-compressor==4.6.0  # https://github.com/django-compressor/django-compressor
+lxml>=5.3.0
 
 # Wagtail
 # ------------------------------------------------------------------------------
 wagtail==7.4.2
 wagtail-modeladmin==2.3.0
 wagtail-autocomplete==0.12.0
+wagtail-json-widget
 
 # Packtools (SPS package validation)
 # ------------------------------------------------------------------------------
