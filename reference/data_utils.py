@@ -3,8 +3,14 @@ import json
 import logging
 import re
 
+from django.db import IntegrityError
 from lxml import etree
 
+from reference.exceptions import (
+    ReferenceLlamaDisabledError,
+    ReferenceLlamaMisconfiguredError,
+    ReferenceLlamaUnavailableError,
+)
 from reference.marking import mark_reference, mark_references
 from reference.models import ElementCitation, Reference, ReferenceStatus
 from reference.utils.references import parse_reference_list, stz_norm
@@ -361,22 +367,30 @@ def resolve_reference_result(mixed_citation, user=None, output_type="json"):
                 marked_data,
             )
             return None
-        reference = Reference.objects.create(
-            mixed_citation=mixed_citation,
-            status=ReferenceStatus.CREATING,
-            creator=user,
-        )
-        ElementCitation.objects.create(
-            reference=reference,
-            marked=marked_data,
-            marked_xml=etree.tostring(
-                get_xml(json.dumps(marked_data)),
-                pretty_print=True,
-                encoding="unicode",
-            ),
-        )
-        reference.status = ReferenceStatus.READY
-        reference.save()
+        try:
+            reference, created = Reference.objects.get_or_create(
+                checksum=checksum,
+                defaults={
+                    "mixed_citation": mixed_citation,
+                    "status": ReferenceStatus.CREATING,
+                    "creator": user,
+                },
+            )
+        except IntegrityError:
+            reference = Reference.objects.get(checksum=checksum)
+            created = False
+        if created or not reference.element_citation.exists():
+            ElementCitation.objects.create(
+                reference=reference,
+                marked=marked_data,
+                marked_xml=etree.tostring(
+                    get_xml(json.dumps(marked_data)),
+                    pretty_print=True,
+                    encoding="unicode",
+                ),
+            )
+            reference.status = ReferenceStatus.READY
+            reference.save()
 
     element = reference.element_citation.first()
     if output_type in ("xml", "jats"):
@@ -401,8 +415,8 @@ def resolve_references_result(references, user=None, output_type="json"):
 
 def get_reference(obj_id):
     logger.info("Starting get_reference for ID=%s", obj_id)
+    obj_reference = Reference.objects.get(id=obj_id)
     try:
-        obj_reference = Reference.objects.get(id=obj_id)
         logger.info("Marking citation: %r", obj_reference.mixed_citation)
         marked = list(mark_references(obj_reference.mixed_citation))
 
@@ -455,6 +469,18 @@ def get_reference(obj_id):
             obj_id,
             citations_created,
         )
+    except (
+        ReferenceLlamaDisabledError,
+        ReferenceLlamaMisconfiguredError,
+        ReferenceLlamaUnavailableError,
+    ) as exc:
+        logger.error(
+            "Llama unavailable in get_reference for ID=%s: %s — deleting Reference",
+            obj_id,
+            exc,
+        )
+        obj_reference.delete()
+        raise
     except Exception as exc:
         logger.error("Error in get_reference for ID=%s: %s", obj_id, exc, exc_info=True)
         raise

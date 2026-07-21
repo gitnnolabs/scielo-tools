@@ -12,11 +12,13 @@ from reference.api.v1.serializers import (
     ReferenceMarkRequestSerializer,
 )
 from reference.data_utils import build_ref_list, resolve_references_result
-from reference.exceptions import DocxReferencesError
-from reference.utils.references import (
-    parse_reference_list,
-    references_from_docx_upload,
+from reference.exceptions import (
+    DocxReferencesError,
+    ReferenceLlamaDisabledError,
+    ReferenceLlamaMisconfiguredError,
+    ReferenceLlamaUnavailableError,
 )
+from reference.utils.references import parse_reference_list, references_from_docx_upload
 
 
 class ReferenceViewSet(GenericViewSet):
@@ -77,19 +79,29 @@ class ReferenceViewSet(GenericViewSet):
         if not reference_list:
             return JsonResponse({"error": "No references provided"}, status=400)
 
-        if output_type == "jats":
+        try:
+            if output_type == "jats":
+                results = resolve_references_result(
+                    references,
+                    user=self.request.user,
+                    output_type="xml",
+                )
+                return JsonResponse({"ref_list": build_ref_list(results)})
+
             results = resolve_references_result(
                 references,
                 user=self.request.user,
-                output_type="xml",
+                output_type=output_type,
             )
-            return JsonResponse({"ref_list": build_ref_list(results)})
-
-        results = resolve_references_result(
-            references,
-            user=self.request.user,
-            output_type=output_type,
-        )
+        except (
+            ReferenceLlamaDisabledError,
+            ReferenceLlamaMisconfiguredError,
+            ReferenceLlamaUnavailableError,
+        ) as exc:
+            return JsonResponse(
+                {"error": f"Llama model is not available: {exc}"},
+                status=503,
+            )
 
         if isinstance(references, str) and len(results) == 1:
             response_data = {

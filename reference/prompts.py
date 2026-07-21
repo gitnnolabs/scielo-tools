@@ -7,7 +7,13 @@ MESSAGES = [
             "If the input is NOT a bibliographic reference — for example a figure or "
             "table caption (Figure 1, Figura 2, Fig. 3, Table 1, Tabela 1), a section "
             "heading (Figures, Figuras, List of figures, Acknowledgments, "
-            "Agradecimentos, Appendix, Anexo), or other non-citation text — respond "
+            "Agradecimentos, Appendix, Anexo), an ORCID URL (https://orcid.org/…), "
+            "a standalone person name without year/source/DOI, an editorial role "
+            "(SCIENTIFIC EDITOR, ASSOCIATE EDITOR, Editor Científico, Editor "
+            "Associado), an authorship or CRediT contribution statement "
+            "(Responsibility for…, Approval of…, Manuscript writing…, Data "
+            "analysis…, Contribuição…, Aprovação…, Redação…, Análise…), or other "
+            "non-citation text — respond "
             'ONLY with {"is_reference": false} and do not invent bibliographic fields. '
             "When the input IS a bibliographic reference, always include reftype with "
             "one of: book, confproc, data, database, journal, legal-doc, letter, "
@@ -151,6 +157,41 @@ MESSAGES = [
     {
         "role": "user",
         "content": "List of figures",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "https://orcid.org/0000-0003-4872-7252",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "Marcelle Miranda da Silva",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "SCIENTIFIC EDITOR",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": (
+            "Responsibility for all aspects of the content and the integrity of "
+            "the published article. Camila Lima Ribeiro, Marcelle Miranda da Silva."
+        ),
     },
     {
         "role": "assistant",

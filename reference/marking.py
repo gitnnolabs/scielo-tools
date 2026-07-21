@@ -27,7 +27,7 @@ def mark_reference(reference_text):
         logger.error(
             "Error marking reference via Llama: %s — ref=%s", exc, reference_text
         )
-        yield f"Llama model is not available: {str(exc)}"
+        raise
 
     except Exception as exc:
         logger.exception("Unexpected error marking reference: ref=%s", reference_text)

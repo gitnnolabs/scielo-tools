@@ -444,6 +444,46 @@ def test_reference_create_view_form_valid(monkeypatch):
 
 
 @pytest.mark.django_db
+def test_reference_create_view_shows_error_when_llama_unavailable(monkeypatch):
+    from reference.exceptions import ReferenceLlamaUnavailableError
+
+    User = get_user_model()
+    user = User.objects.create_user(username="wagtail-llama-down", password="pass")
+    error_messages = []
+
+    def raise_unavailable(*_args, **_kwargs):
+        raise ReferenceLlamaUnavailableError(
+            "Reference Llama service unavailable: 404 Client Error"
+        )
+
+    monkeypatch.setattr(
+        "reference.wagtail_hooks.resolve_references_result",
+        raise_unavailable,
+    )
+    monkeypatch.setattr(
+        "reference.wagtail_hooks.messages.error",
+        lambda request, message: error_messages.append(str(message)),
+    )
+
+    view = ReferenceCreateView()
+    view.request = MagicMock(user=user)
+    view.render_to_response = MagicMock(return_value="rendered")
+    view.get_context_data = MagicMock(return_value={"form": MagicMock()})
+
+    form = MagicMock()
+    form.cleaned_data = {"mixed_citation": "Smith J. Nature. 2024."}
+
+    before_refs = Reference.objects.count()
+    response = view.form_valid(form)
+
+    assert response == "rendered"
+    assert Reference.objects.count() == before_refs
+    assert len(error_messages) == 1
+    assert "Llama model is not available" in error_messages[0]
+    assert "404" in error_messages[0]
+
+
+@pytest.mark.django_db
 def test_reference_create_view_keeps_panels_and_docx():
     view = ReferenceCreateView()
     view.model = Reference

@@ -41,11 +41,24 @@ def test_marking_reports_llama_misconfigured(monkeypatch):
 
     from reference.marking import mark_reference
 
-    result = list(mark_reference("Ref A"))
+    with pytest.raises(ReferenceLlamaMisconfiguredError, match="REFERENCE_URL"):
+        list(mark_reference("Ref A"))
 
-    assert len(result) == 1
-    assert "Llama model is not available" in result[0]
-    assert "REFERENCE_URL is required" in result[0]
+
+def test_marking_raises_llama_unavailable(monkeypatch):
+    from reference.exceptions import ReferenceLlamaUnavailableError
+
+    def raise_unavailable(*_args, **_kwargs):
+        raise ReferenceLlamaUnavailableError(
+            "Reference Llama service unavailable: 404 Client Error"
+        )
+
+    monkeypatch.setattr("reference.marking.get_provider", raise_unavailable)
+
+    from reference.marking import mark_reference
+
+    with pytest.raises(ReferenceLlamaUnavailableError, match="404"):
+        list(mark_reference("Ref A"))
 
 
 def test_prompt_instructs_skip_for_figures():
@@ -54,6 +67,9 @@ def test_prompt_instructs_skip_for_figures():
     system = MESSAGES[0]["content"]
     assert "is_reference" in system
     assert "figure" in system.lower() or "Figure" in system
+    assert "orcid" in system.lower()
+    assert "SCIENTIFIC EDITOR" in system or "editorial" in system.lower()
+    assert "Responsibility" in system or "contribution" in system.lower()
     assert RESPONSE_FORMAT["schema"].get("required") is None
 
     pairs = list(zip(MESSAGES[1::2], MESSAGES[2::2]))
@@ -64,6 +80,9 @@ def test_prompt_instructs_skip_for_figures():
     ]
     assert any("Figure 1" in text for text in skip_examples)
     assert any("Figura" in text for text in skip_examples)
+    assert any("orcid.org" in text for text in skip_examples)
+    assert any("SCIENTIFIC EDITOR" in text for text in skip_examples)
+    assert any("Responsibility for" in text for text in skip_examples)
 
 
 def test_get_xml_journal():

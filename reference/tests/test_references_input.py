@@ -2,6 +2,7 @@ import json
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from rest_framework.test import APIClient
 
 from reference.data_utils import (
@@ -128,6 +129,39 @@ def test_resolve_reference_result_creates_and_marks_new_reference(monkeypatch):
 
 
 @pytest.mark.django_db
+def test_resolve_reference_result_handles_checksum_race(monkeypatch):
+    citation = "Tuffi Santos LD. Planta Daninha 2007; 25(1):133-37."
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        lambda _text: iter(
+            [json.dumps({"reftype": "journal", "title": "Crescimento do eucalipto"})]
+        ),
+    )
+
+    def racing_get_or_create(*args, **kwargs):
+        Reference.objects.create(
+            mixed_citation=citation,
+            status=ReferenceStatus.READY,
+        )
+        raise IntegrityError("duplicate key value violates unique constraint")
+
+    monkeypatch.setattr(
+        Reference.objects,
+        "get_or_create",
+        racing_get_or_create,
+    )
+
+    result = resolve_reference_result(citation, output_type="json")
+
+    assert result is not None
+    assert result["mixed_citation"] == citation
+    assert Reference.objects.filter(mixed_citation=citation).count() == 1
+    assert (
+        ElementCitation.objects.filter(reference__mixed_citation=citation).count() == 1
+    )
+
+
+@pytest.mark.django_db
 def test_resolve_reference_result_ignores_figure_without_db(monkeypatch):
     monkeypatch.setattr(
         "reference.data_utils.mark_reference",
@@ -142,6 +176,72 @@ def test_resolve_reference_result_ignores_figure_without_db(monkeypatch):
     assert result is None
     assert Reference.objects.count() == before_refs
     assert ElementCitation.objects.count() == before_cites
+
+
+@pytest.mark.django_db
+def test_resolve_reference_result_ignores_orcid_without_db(monkeypatch):
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        lambda _text: iter([json.dumps({"is_reference": False})]),
+    )
+
+    before_refs = Reference.objects.count()
+    before_cites = ElementCitation.objects.count()
+
+    result = resolve_reference_result("https://orcid.org/0000-0003-4872-7252")
+
+    assert result is None
+    assert Reference.objects.count() == before_refs
+    assert ElementCitation.objects.count() == before_cites
+
+
+@pytest.mark.django_db
+def test_resolve_reference_result_raises_without_db_when_llama_unavailable(
+    monkeypatch,
+):
+    from reference.exceptions import ReferenceLlamaUnavailableError
+
+    def raise_unavailable(_text):
+        raise ReferenceLlamaUnavailableError(
+            "Reference Llama service unavailable: 404 Client Error"
+        )
+        yield  # pragma: no cover
+
+    monkeypatch.setattr("reference.data_utils.mark_reference", raise_unavailable)
+
+    before_refs = Reference.objects.count()
+    before_cites = ElementCitation.objects.count()
+
+    with pytest.raises(ReferenceLlamaUnavailableError, match="404"):
+        resolve_reference_result("Smith J. Nature. 2024.")
+
+    assert Reference.objects.count() == before_refs
+    assert ElementCitation.objects.count() == before_cites
+
+
+@pytest.mark.django_db
+def test_get_reference_deletes_when_llama_unavailable(monkeypatch):
+    from reference.exceptions import ReferenceLlamaUnavailableError
+
+    def raise_unavailable(_block):
+        raise ReferenceLlamaUnavailableError(
+            "Reference Llama service unavailable: 404 Client Error"
+        )
+        yield  # pragma: no cover
+
+    monkeypatch.setattr("reference.data_utils.mark_references", raise_unavailable)
+
+    reference = Reference.objects.create(
+        mixed_citation="Smith J. Nature. 2024.",
+        status=ReferenceStatus.CREATING,
+    )
+    ref_id = reference.id
+
+    with pytest.raises(ReferenceLlamaUnavailableError, match="404"):
+        get_reference(ref_id)
+
+    assert not Reference.objects.filter(id=ref_id).exists()
+    assert ElementCitation.objects.filter(reference_id=ref_id).count() == 0
 
 
 @pytest.mark.django_db
@@ -348,6 +448,38 @@ def test_api_accepts_reference_list(monkeypatch):
     assert len(payload["references"]) == 2
     assert payload["references"][0]["mixed_citation"] == "Ref A"
     assert payload["references"][1]["data"]["title"] == "Ref B"
+
+
+@pytest.mark.django_db
+def test_api_returns_503_when_llama_unavailable(monkeypatch):
+    from reference.exceptions import ReferenceLlamaUnavailableError
+
+    def raise_unavailable(*_args, **_kwargs):
+        raise ReferenceLlamaUnavailableError(
+            "Reference Llama service unavailable: 404 Client Error"
+        )
+
+    monkeypatch.setattr(
+        "reference.api.v1.views.resolve_references_result",
+        raise_unavailable,
+    )
+
+    User = get_user_model()
+    user = User.objects.create_user(username="apiuser_llama_down", password="pass")
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    before_refs = Reference.objects.count()
+
+    response = client.post(
+        "/api/v1/reference/",
+        data=json.dumps({"references": "Smith J. Nature. 2024.", "type": "json"}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 503
+    assert "Llama model is not available" in response.json()["error"]
+    assert Reference.objects.count() == before_refs
 
 
 @pytest.mark.django_db
