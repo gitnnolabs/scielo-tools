@@ -18,6 +18,7 @@ def llama_settings(settings):
     settings.REFERENCE_MODEL = "llama3.2:3b"
     settings.REFERENCE_TIMEOUT = 30
     settings.REFERENCE_TOKEN = ""
+    settings.REFERENCE_NUM_CTX = 8192
     return settings
 
 
@@ -67,6 +68,7 @@ def test_http_provider_chat_success(llama_settings):
     args, kwargs = post.call_args
     assert args[0] == "http://llama.example:11434/api/chat"
     assert kwargs["json"]["model"] == "llama3.2:3b"
+    assert kwargs["json"]["options"]["num_ctx"] == 8192
     assert kwargs["json"]["format"]["type"] == "object"
     assert kwargs["json"]["format"]["required"] == ["reftype"]
     assert kwargs["json"]["messages"][-1]["content"] == "Smith J. Nature. 2024."

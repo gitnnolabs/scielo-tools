@@ -41,6 +41,7 @@ class Provider:
         self.model = getattr(settings, "REFERENCE_MODEL", "") or "llama3.2:3b"
         self.timeout = getattr(settings, "REFERENCE_TIMEOUT", 300)
         self.token = getattr(settings, "REFERENCE_TOKEN", "") or ""
+        self.num_ctx = int(getattr(settings, "REFERENCE_NUM_CTX", 8192) or 8192)
 
     def run(self, user_input):
         messages = self.messages.copy()
@@ -56,7 +57,11 @@ class Provider:
             messages[-1]["content"][:150],
         )
 
-        options = {"temperature": self.temperature, "top_p": self.top_p}
+        options = {
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "num_ctx": self.num_ctx,
+        }
         if self.max_tokens:
             options["num_predict"] = self.max_tokens
 
