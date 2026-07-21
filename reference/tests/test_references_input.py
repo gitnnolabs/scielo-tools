@@ -15,18 +15,6 @@ from reference.models import ElementCitation, Reference, ReferenceStatus
 from reference.utils.references import parse_reference_list
 
 
-class LocalProviderStub:
-    def __init__(self, *_args, **_kwargs):
-        pass
-
-    def run(self, _reference_text):
-        return {
-            "choices": [
-                {"message": {"content": '{"reftype":"journal"}'}},
-            ]
-        }
-
-
 @pytest.mark.parametrize(
     "value,expected",
     [
@@ -45,8 +33,41 @@ def test_parse_reference_list(value, expected):
 
 
 def test_mark_references_accepts_list(monkeypatch):
+    class BatchStub:
+        def __init__(self, messages, response_format, **_kwargs):
+            self.response_format = response_format
+
+        def run(self, text):
+            schema = (
+                self.response_format.get("schema", {}) if self.response_format else {}
+            )
+            if isinstance(schema.get("properties"), dict) and "results" in schema.get(
+                "properties", {}
+            ):
+                return {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": json.dumps(
+                                    {
+                                        "results": [
+                                            {"reftype": "journal", "title": "Ref A"},
+                                            {"reftype": "journal", "title": "Ref B"},
+                                        ]
+                                    }
+                                )
+                            }
+                        }
+                    ]
+                }
+            return {
+                "choices": [
+                    {"message": {"content": '{"reftype":"journal"}'}},
+                ]
+            }
+
     monkeypatch.setattr(
-        "reference.marking.get_provider", lambda *a, **k: LocalProviderStub()
+        "reference.marking.get_provider", lambda *a, **k: BatchStub(*a, **k)
     )
 
     result = list(mark_references(["Ref A", "Ref B"]))
@@ -54,15 +75,43 @@ def test_mark_references_accepts_list(monkeypatch):
     assert len(result) == 2
     assert result[0]["references"] == "Ref A"
     assert result[1]["references"] == "Ref B"
-    assert result[0]["choices"] == ['{"reftype":"journal"}']
+    assert json.loads(result[0]["choices"][0])["title"] == "Ref A"
+    assert json.loads(result[1]["choices"][0])["title"] == "Ref B"
 
 
 def test_mark_references_string_and_list_are_equivalent(monkeypatch):
     class MarkStub:
-        def __init__(self, *_args, **_kwargs):
-            pass
+        def __init__(self, messages, response_format, **_kwargs):
+            self.response_format = response_format
 
         def run(self, text):
+            schema = (
+                self.response_format.get("schema", {}) if self.response_format else {}
+            )
+            if isinstance(schema.get("properties"), dict) and "results" in schema.get(
+                "properties", {}
+            ):
+                lines = [
+                    line.split(". ", 1)[1]
+                    for line in text.splitlines()
+                    if line[:1].isdigit() and ". " in line
+                ]
+                return {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": json.dumps(
+                                    {
+                                        "results": [
+                                            {"reftype": "journal", "title": line}
+                                            for line in lines
+                                        ]
+                                    }
+                                )
+                            }
+                        }
+                    ]
+                }
             return {
                 "choices": [
                     {
@@ -73,7 +122,9 @@ def test_mark_references_string_and_list_are_equivalent(monkeypatch):
                 ]
             }
 
-    monkeypatch.setattr("reference.marking.get_provider", lambda *a, **k: MarkStub())
+    monkeypatch.setattr(
+        "reference.marking.get_provider", lambda *a, **k: MarkStub(*a, **k)
+    )
 
     from_list = list(mark_references(["Ref A", "Ref B"]))
     from_string = list(mark_references("Ref A\nRef B"))
@@ -246,15 +297,18 @@ def test_get_reference_deletes_when_llama_unavailable(monkeypatch):
 
 @pytest.mark.django_db
 def test_resolve_references_result_omits_non_references(monkeypatch):
-    def fake_mark_reference(text):
-        if text.startswith("Figure"):
-            yield json.dumps({"is_reference": False})
-            return
-        yield json.dumps({"reftype": "journal", "title": text})
+    def fake_mark_reference_texts(texts):
+        out = []
+        for text in texts:
+            if text.startswith("Figure"):
+                out.append(json.dumps({"is_reference": False}))
+            else:
+                out.append(json.dumps({"reftype": "journal", "title": text}))
+        return out
 
     monkeypatch.setattr(
-        "reference.data_utils.mark_reference",
-        fake_mark_reference,
+        "reference.data_utils.mark_reference_texts",
+        fake_mark_reference_texts,
     )
 
     results = resolve_references_result(
@@ -379,6 +433,26 @@ def test_resolve_references_result_processes_each_item(monkeypatch):
     assert len(results) == 2
     assert results[0]["data"]["title"] == "A"
     assert results[1]["data"]["title"] == "B"
+
+
+@pytest.mark.django_db
+def test_resolve_references_result_batches_uncached(monkeypatch):
+    calls = []
+
+    def fake_mark_reference_texts(texts):
+        calls.append(list(texts))
+        return [json.dumps({"reftype": "journal", "title": text}) for text in texts]
+
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference_texts",
+        fake_mark_reference_texts,
+    )
+
+    results = resolve_references_result(["Ref A", "Ref B", "Ref C"])
+
+    assert calls == [["Ref A", "Ref B", "Ref C"]]
+    assert [item["data"]["title"] for item in results] == ["Ref A", "Ref B", "Ref C"]
+    assert Reference.objects.count() == 3
 
 
 @pytest.mark.django_db

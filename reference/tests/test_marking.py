@@ -33,6 +33,130 @@ def test_marking_uses_http_llama(monkeypatch):
     assert result == ['{"reftype":"journal","title":"Remote"}']
 
 
+def test_mark_reference_texts_batches_one_request(monkeypatch, settings):
+    settings.REFERENCE_BATCH_SIZE = 10
+    calls = []
+
+    class BatchProviderStub:
+        def __init__(self, messages, response_format, **_kwargs):
+            self.response_format = response_format
+
+        def run(self, text):
+            calls.append(text)
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": json.dumps(
+                                {
+                                    "results": [
+                                        {"reftype": "journal", "title": "A"},
+                                        {"reftype": "journal", "title": "B"},
+                                        {"reftype": "journal", "title": "C"},
+                                    ]
+                                }
+                            )
+                        }
+                    }
+                ]
+            }
+
+    monkeypatch.setattr(
+        "reference.marking.get_provider",
+        lambda *a, **k: BatchProviderStub(*a, **k),
+    )
+
+    from reference.marking import mark_reference_texts
+
+    result = mark_reference_texts(["Ref A", "Ref B", "Ref C"])
+
+    assert len(calls) == 1
+    assert "1. Ref A" in calls[0]
+    assert "2. Ref B" in calls[0]
+    assert "3. Ref C" in calls[0]
+    assert [json.loads(item)["title"] for item in result] == ["A", "B", "C"]
+
+
+def test_mark_reference_texts_falls_back_on_count_mismatch(monkeypatch, settings):
+    settings.REFERENCE_BATCH_SIZE = 10
+    calls = []
+
+    class MismatchThenSingleStub:
+        def __init__(self, messages, response_format, **_kwargs):
+            self.response_format = response_format
+
+        def run(self, text):
+            calls.append(text)
+            schema = (
+                self.response_format.get("schema", {}) if self.response_format else {}
+            )
+            if isinstance(schema.get("properties"), dict) and "results" in schema.get(
+                "properties", {}
+            ):
+                return {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": json.dumps(
+                                    {"results": [{"reftype": "journal"}]}
+                                )
+                            }
+                        }
+                    ]
+                }
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": json.dumps({"reftype": "journal", "title": text})
+                        }
+                    }
+                ]
+            }
+
+    monkeypatch.setattr(
+        "reference.marking.get_provider",
+        lambda *a, **k: MismatchThenSingleStub(*a, **k),
+    )
+
+    from reference.marking import mark_reference_texts
+
+    result = mark_reference_texts(["Ref A", "Ref B"])
+
+    assert len(calls) == 3
+    assert [json.loads(item)["title"] for item in result] == ["Ref A", "Ref B"]
+
+
+def test_mark_reference_texts_single_uses_non_batch(monkeypatch, settings):
+    settings.REFERENCE_BATCH_SIZE = 10
+    formats = []
+
+    class CaptureFormatStub:
+        def __init__(self, messages, response_format, **_kwargs):
+            formats.append(response_format)
+
+        def run(self, _text):
+            return {
+                "choices": [
+                    {"message": {"content": '{"reftype":"journal","title":"One"}'}}
+                ]
+            }
+
+    monkeypatch.setattr(
+        "reference.marking.get_provider",
+        lambda *a, **k: CaptureFormatStub(*a, **k),
+    )
+
+    from reference.marking import mark_reference_texts
+    from reference.prompts import RESPONSE_FORMAT
+
+    result = mark_reference_texts(["Only one"])
+
+    assert len(formats) == 1
+    assert formats[0] is RESPONSE_FORMAT
+    assert json.loads(result[0])["title"] == "One"
+
+
 def test_marking_reports_llama_misconfigured(monkeypatch):
     def raise_misconfigured(*_args, **_kwargs):
         raise ReferenceLlamaMisconfiguredError("REFERENCE_URL is required.")
@@ -62,7 +186,7 @@ def test_marking_raises_llama_unavailable(monkeypatch):
 
 
 def test_prompt_instructs_skip_for_figures():
-    from reference.prompts import MESSAGES, RESPONSE_FORMAT
+    from reference.prompts import BATCH_RESPONSE_FORMAT, MESSAGES, RESPONSE_FORMAT
 
     system = MESSAGES[0]["content"]
     assert "is_reference" in system
@@ -71,6 +195,8 @@ def test_prompt_instructs_skip_for_figures():
     assert "SCIENTIFIC EDITOR" in system or "editorial" in system.lower()
     assert "Responsibility" in system or "contribution" in system.lower()
     assert RESPONSE_FORMAT["schema"].get("required") is None
+    assert "results" in BATCH_RESPONSE_FORMAT["schema"]["properties"]
+    assert BATCH_RESPONSE_FORMAT["schema"]["required"] == ["results"]
 
     pairs = list(zip(MESSAGES[1::2], MESSAGES[2::2]))
     skip_examples = [

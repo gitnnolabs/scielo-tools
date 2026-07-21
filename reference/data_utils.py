@@ -11,11 +11,13 @@ from reference.exceptions import (
     ReferenceLlamaMisconfiguredError,
     ReferenceLlamaUnavailableError,
 )
-from reference.marking import mark_reference, mark_references
+from reference.marking import mark_reference, mark_reference_texts, mark_references
 from reference.models import ElementCitation, Reference, ReferenceStatus
 from reference.utils.references import parse_reference_list, stz_norm
 
 logger = logging.getLogger(__name__)
+
+_UNSET = object()
 
 
 def parse_marked_choice(choice):
@@ -346,17 +348,20 @@ def build_ref_list(results):
     return etree.tostring(root, pretty_print=True, encoding="unicode")
 
 
-def resolve_reference_result(mixed_citation, user=None, output_type="json"):
+def resolve_reference_result(
+    mixed_citation, user=None, output_type="json", marked_data=_UNSET
+):
     normalized = stz_norm(mixed_citation)
     checksum = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
     try:
         reference = Reference.objects.get(checksum=checksum)
     except Reference.DoesNotExist:
-        marked_data = None
-        for choice in mark_reference(mixed_citation):
-            marked_data = parse_marked_choice(choice)
-            break
+        if marked_data is _UNSET:
+            marked_data = None
+            for choice in mark_reference(mixed_citation):
+                marked_data = parse_marked_choice(choice)
+                break
         if marked_data is None or is_non_reference(marked_data):
             logger.info("Ignoring non-reference input: %r", mixed_citation)
             return None
@@ -405,9 +410,38 @@ def resolve_reference_result(mixed_citation, user=None, output_type="json"):
 
 
 def resolve_references_result(references, user=None, output_type="json"):
+    citations = parse_reference_list(references)
+    pending = []
+    pending_seen = set()
+    for citation in citations:
+        checksum = hashlib.sha256(stz_norm(citation).encode("utf-8")).hexdigest()
+        if Reference.objects.filter(checksum=checksum).exists():
+            continue
+        if citation in pending_seen:
+            continue
+        pending_seen.add(citation)
+        pending.append(citation)
+
+    premarked = {}
+    if pending:
+        for citation, content in zip(pending, mark_reference_texts(pending)):
+            premarked[citation] = (
+                parse_marked_choice(content) if content is not None else None
+            )
+
     results = []
-    for citation in parse_reference_list(references):
-        item = resolve_reference_result(citation, user=user, output_type=output_type)
+    for citation in citations:
+        if citation in premarked:
+            item = resolve_reference_result(
+                citation,
+                user=user,
+                output_type=output_type,
+                marked_data=premarked[citation],
+            )
+        else:
+            item = resolve_reference_result(
+                citation, user=user, output_type=output_type
+            )
         if item is not None:
             results.append(item)
     return results

@@ -199,32 +199,51 @@ MESSAGES = [
     },
 ]
 
+ITEM_PROPERTIES = {
+    "is_reference": {"type": "boolean"},
+    "reftype": {"type": "string"},
+    "authors": {"type": "array", "items": {"type": "object"}},
+    "full_text": {"type": "string"},
+    "date": {"type": "integer"},
+    "title": {"type": "string"},
+    "source": {"type": "string"},
+    "chapter_title": {"type": "string"},
+    "doi": {"type": "string"},
+    "vol": {"type": "integer"},
+    "num": {"type": "integer"},
+    "pages": {"type": "string"},
+    "uri": {"type": "string"},
+    "organization": {"type": "string"},
+    "version": {"type": "string"},
+    "access_date": {"type": "string"},
+    "degree": {"type": "string"},
+    "conf_loc": {"type": "string"},
+    "conf_date": {"type": "string"},
+    "conf_num": {"type": "string"},
+    "country": {"type": "string"},
+}
+
 RESPONSE_FORMAT = {
     "type": "json_object",
     "schema": {
         "type": "object",
+        "properties": ITEM_PROPERTIES,
+    },
+}
+
+BATCH_RESPONSE_FORMAT = {
+    "type": "json_object",
+    "schema": {
+        "type": "object",
         "properties": {
-            "is_reference": {"type": "boolean"},
-            "reftype": {"type": "string"},
-            "authors": {"type": "array", "items": {"type": "object"}},
-            "full_text": {"type": "string"},
-            "date": {"type": "integer"},
-            "title": {"type": "string"},
-            "source": {"type": "string"},
-            "chapter_title": {"type": "string"},
-            "doi": {"type": "string"},
-            "vol": {"type": "integer"},
-            "num": {"type": "integer"},
-            "pages": {"type": "string"},
-            "uri": {"type": "string"},
-            "organization": {"type": "string"},
-            "version": {"type": "string"},
-            "access_date": {"type": "string"},
-            "degree": {"type": "string"},
-            "conf_loc": {"type": "string"},
-            "conf_date": {"type": "string"},
-            "conf_num": {"type": "string"},
-            "country": {"type": "string"},
+            "results": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": ITEM_PROPERTIES,
+                },
+            },
         },
+        "required": ["results"],
     },
 }
