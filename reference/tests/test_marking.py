@@ -48,6 +48,24 @@ def test_marking_reports_llama_misconfigured(monkeypatch):
     assert "REFERENCE_URL is required" in result[0]
 
 
+def test_prompt_instructs_skip_for_figures():
+    from reference.prompts import MESSAGES, RESPONSE_FORMAT
+
+    system = MESSAGES[0]["content"]
+    assert "is_reference" in system
+    assert "figure" in system.lower() or "Figure" in system
+    assert RESPONSE_FORMAT["schema"].get("required") is None
+
+    pairs = list(zip(MESSAGES[1::2], MESSAGES[2::2]))
+    skip_examples = [
+        user["content"]
+        for user, assistant in pairs
+        if assistant["content"] == '{"is_reference": false}'
+    ]
+    assert any("Figure 1" in text for text in skip_examples)
+    assert any("Figura" in text for text in skip_examples)
+
+
 def test_get_xml_journal():
     sample_json = json.dumps(
         {

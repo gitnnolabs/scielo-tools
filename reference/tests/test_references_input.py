@@ -106,17 +106,10 @@ def test_resolve_reference_result_reuses_existing_reference():
 
 @pytest.mark.django_db
 def test_resolve_reference_result_creates_and_marks_new_reference(monkeypatch):
-    def fake_get_reference(obj_id):
-        reference = Reference.objects.get(id=obj_id)
-        ElementCitation.objects.create(
-            reference=reference,
-            marked={"reftype": "journal", "title": "Created"},
-            marked_xml="<element-citation publication-type='journal'/>",
-        )
-        reference.status = ReferenceStatus.READY
-        reference.save()
-
-    monkeypatch.setattr("reference.data_utils.get_reference", fake_get_reference)
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        lambda _text: iter([json.dumps({"reftype": "journal", "title": "Created"})]),
+    )
 
     User = get_user_model()
     user = User.objects.create_user(username="creator", password="pass")
@@ -131,6 +124,115 @@ def test_resolve_reference_result_creates_and_marks_new_reference(monkeypatch):
     stored = Reference.objects.get(mixed_citation="Jones A. Science. 2023.")
     assert stored.creator == user
     assert stored.status == ReferenceStatus.READY
+    assert stored.element_citation.count() == 1
+
+
+@pytest.mark.django_db
+def test_resolve_reference_result_ignores_figure_without_db(monkeypatch):
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        lambda _text: iter([json.dumps({"is_reference": False})]),
+    )
+
+    before_refs = Reference.objects.count()
+    before_cites = ElementCitation.objects.count()
+
+    result = resolve_reference_result("Figure 1. Map of the study area.")
+
+    assert result is None
+    assert Reference.objects.count() == before_refs
+    assert ElementCitation.objects.count() == before_cites
+
+
+@pytest.mark.django_db
+def test_resolve_references_result_omits_non_references(monkeypatch):
+    def fake_mark_reference(text):
+        if text.startswith("Figure"):
+            yield json.dumps({"is_reference": False})
+            return
+        yield json.dumps({"reftype": "journal", "title": text})
+
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        fake_mark_reference,
+    )
+
+    results = resolve_references_result(
+        [
+            "Smith J. Nature. 2024.",
+            "Figure 1. Map of the study area.",
+            "Doe A. Science. 2023.",
+        ]
+    )
+
+    assert [item["mixed_citation"] for item in results] == [
+        "Smith J. Nature. 2024.",
+        "Doe A. Science. 2023.",
+    ]
+    assert (
+        Reference.objects.filter(
+            mixed_citation="Figure 1. Map of the study area."
+        ).count()
+        == 0
+    )
+    assert Reference.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_get_reference_deletes_when_only_non_reference(monkeypatch):
+    monkeypatch.setattr(
+        "reference.data_utils.mark_references",
+        lambda _block: iter(
+            [
+                {
+                    "references": "Figure 1. Caption.",
+                    "choices": [json.dumps({"is_reference": False})],
+                }
+            ]
+        ),
+    )
+    reference = Reference.objects.create(
+        mixed_citation="Figure 1. Caption.",
+        status=ReferenceStatus.CREATING,
+    )
+    ref_id = reference.id
+
+    get_reference(ref_id)
+
+    assert not Reference.objects.filter(id=ref_id).exists()
+    assert ElementCitation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_get_reference_skips_non_reference_among_valid(monkeypatch):
+    def fake_mark_references(reference_block):
+        for ref_row in parse_reference_list(reference_block):
+            if ref_row.startswith("Figure"):
+                yield {
+                    "references": ref_row,
+                    "choices": [json.dumps({"is_reference": False})],
+                }
+            else:
+                yield {
+                    "references": ref_row,
+                    "choices": [json.dumps({"reftype": "journal", "title": ref_row})],
+                }
+
+    monkeypatch.setattr(
+        "reference.data_utils.mark_references",
+        fake_mark_references,
+    )
+    reference = Reference.objects.create(
+        mixed_citation="Ref A\nFigure 1. Caption.\nRef B",
+        status=ReferenceStatus.CREATING,
+    )
+
+    get_reference(reference.id)
+
+    reference.refresh_from_db()
+    assert reference.status == ReferenceStatus.READY
+    titles = list(reference.element_citation.values_list("marked", flat=True))
+    assert [item["title"] for item in titles] == ["Ref A", "Ref B"]
 
 
 @pytest.mark.django_db

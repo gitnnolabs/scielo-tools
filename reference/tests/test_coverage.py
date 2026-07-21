@@ -13,6 +13,7 @@ from reference.api.v1.serializers import (
     ReferencesInputField,
 )
 from reference.api.v1.views import ReferenceViewSet
+from reference.create_forms import ReferenceCreateAdminForm
 from reference.data_utils import (
     append_access_date,
     append_citation_pages,
@@ -20,14 +21,16 @@ from reference.data_utils import (
     get_number_of_month,
     get_reference,
     get_xml,
+    parse_marked_choice,
+    resolve_reference_result,
     resolve_references_result,
 )
-from reference.create_forms import ReferenceCreateAdminForm
 from reference.marking import mark_reference
 from reference.models import ElementCitation, Reference, ReferenceStatus
 from reference.providers import get_provider
 from reference.providers.http import Provider
 from reference.tests.test_docx_api import make_docx_bytes
+from reference.utils.references import extract_text_from_docx
 from reference.wagtail_hooks import ReferenceCreateView
 
 
@@ -65,6 +68,11 @@ def test_get_xml_malformed_json_returns_error():
     assert get_xml("{not-json").tag == "error"
 
 
+def test_parse_marked_choice_dict_passthrough():
+    marked = {"reftype": "journal", "title": "T"}
+    assert parse_marked_choice(marked) is marked
+
+
 def test_get_xml_authors_collab_variants():
     xml_node = get_xml(
         json.dumps(
@@ -76,6 +84,7 @@ def test_get_xml_authors_collab_variants():
                 ],
                 "title": "T",
                 "source": "S",
+                "vol": 10,
                 "num": 2,
             }
         )
@@ -85,6 +94,7 @@ def test_get_xml_authors_collab_variants():
     name = person_group.find("name")
     assert name.find("surname").text == "Smith"
     assert name.find("collab").text == "Team X"
+    assert xml_node.find("volume").text == "10"
     assert xml_node.find("issue").text == "2"
 
 
@@ -260,6 +270,45 @@ def test_get_reference_handles_invalid_json_choice(monkeypatch):
 
 
 @pytest.mark.django_db
+def test_get_reference_skips_choice_without_reftype(monkeypatch):
+    monkeypatch.setattr(
+        "reference.data_utils.mark_references",
+        lambda _block: iter(
+            [
+                {
+                    "references": "Ref A",
+                    "choices": [
+                        {"title": "No type"},
+                        {"reftype": "journal", "title": "Ok"},
+                    ],
+                }
+            ]
+        ),
+    )
+    reference = Reference.objects.create(
+        mixed_citation="Ref A",
+        status=ReferenceStatus.CREATING,
+    )
+    get_reference(reference.id)
+    reference.refresh_from_db()
+    assert reference.status == ReferenceStatus.READY
+    marked = list(reference.element_citation.values_list("marked", flat=True))
+    assert marked == [{"reftype": "journal", "title": "Ok"}]
+
+
+@pytest.mark.django_db
+def test_resolve_reference_result_ignores_mark_without_reftype(monkeypatch):
+    monkeypatch.setattr(
+        "reference.data_utils.mark_reference",
+        lambda _text: iter([{"title": "Missing type"}]),
+    )
+    before_refs = Reference.objects.count()
+    result = resolve_reference_result("Incomplete mark citation.")
+    assert result is None
+    assert Reference.objects.count() == before_refs
+
+
+@pytest.mark.django_db
 def test_get_reference_reraises_missing_object():
     with pytest.raises(Reference.DoesNotExist):
         get_reference(999999)
@@ -377,9 +426,7 @@ def test_reference_create_view_form_valid(monkeypatch):
     view.get_success_url = lambda: "/admin/snippets/reference/reference/"
 
     citation_text = (
-        "Smith J. Nature. 2024.\n\n"
-        "Doe A. Science. 2023.\n"
-        "Smith J. Nature. 2024."
+        "Smith J. Nature. 2024.\n\n" "Doe A. Science. 2023.\n" "Smith J. Nature. 2024."
     )
     form = MagicMock()
     form.cleaned_data = {"mixed_citation": citation_text}
@@ -431,6 +478,28 @@ def test_reference_create_admin_form_rejects_non_docx():
     )
     assert not form.is_valid()
     assert "docx_file" in form.errors
+
+
+def test_reference_create_admin_form_clean_docx_rejects_empty_file():
+    from django.core.exceptions import ValidationError
+
+    class EmptyUpload:
+        name = "empty.docx"
+        size = 0
+
+    form = ReferenceCreateAdminForm()
+    form.cleaned_data = {"docx_file": EmptyUpload()}
+    with pytest.raises(ValidationError, match="Empty file"):
+        form.clean_docx_file()
+
+
+def test_extract_text_from_docx_respects_limit_chars(tmp_path):
+    docx_path = tmp_path / "sample.docx"
+    docx_path.write_bytes(
+        make_docx_bytes(["References", "Smith J. Nature. 2024." * 20])
+    )
+    text = extract_text_from_docx(str(docx_path), limit_chars=40)
+    assert len(text) == 40
 
 
 @pytest.mark.django_db

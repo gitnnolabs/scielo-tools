@@ -5,11 +5,25 @@ import re
 
 from lxml import etree
 
-from reference.marking import mark_references
+from reference.marking import mark_reference, mark_references
 from reference.models import ElementCitation, Reference, ReferenceStatus
 from reference.utils.references import parse_reference_list, stz_norm
 
 logger = logging.getLogger(__name__)
+
+
+def parse_marked_choice(choice):
+    if isinstance(choice, dict):
+        return choice
+    try:
+        return json.loads(choice)
+    except (TypeError, json.JSONDecodeError):
+        return {"raw": choice}
+
+
+def is_non_reference(marked_data):
+    return isinstance(marked_data, dict) and marked_data.get("is_reference") is False
+
 
 meses = {
     "enero": "01",
@@ -333,12 +347,36 @@ def resolve_reference_result(mixed_citation, user=None, output_type="json"):
     try:
         reference = Reference.objects.get(checksum=checksum)
     except Reference.DoesNotExist:
+        marked_data = None
+        for choice in mark_reference(mixed_citation):
+            marked_data = parse_marked_choice(choice)
+            break
+        if marked_data is None or is_non_reference(marked_data):
+            logger.info("Ignoring non-reference input: %r", mixed_citation)
+            return None
+        if not marked_data.get("reftype"):
+            logger.info(
+                "Ignoring mark without reftype: %r marked=%s",
+                mixed_citation,
+                marked_data,
+            )
+            return None
         reference = Reference.objects.create(
             mixed_citation=mixed_citation,
             status=ReferenceStatus.CREATING,
             creator=user,
         )
-        get_reference(reference.id)
+        ElementCitation.objects.create(
+            reference=reference,
+            marked=marked_data,
+            marked_xml=etree.tostring(
+                get_xml(json.dumps(marked_data)),
+                pretty_print=True,
+                encoding="unicode",
+            ),
+        )
+        reference.status = ReferenceStatus.READY
+        reference.save()
 
     element = reference.element_citation.first()
     if output_type in ("xml", "jats"):
@@ -353,10 +391,12 @@ def resolve_reference_result(mixed_citation, user=None, output_type="json"):
 
 
 def resolve_references_result(references, user=None, output_type="json"):
-    return [
-        resolve_reference_result(citation, user=user, output_type=output_type)
-        for citation in parse_reference_list(references)
-    ]
+    results = []
+    for citation in parse_reference_list(references):
+        item = resolve_reference_result(citation, user=user, output_type=output_type)
+        if item is not None:
+            results.append(item)
+    return results
 
 
 def get_reference(obj_id):
@@ -369,15 +409,28 @@ def get_reference(obj_id):
         citations_created = 0
         for item in marked:
             for i in item["choices"]:
-                try:
-                    marked_data = json.loads(i) if isinstance(i, str) else i
-                except json.JSONDecodeError:
-                    marked_data = {"raw": i}
+                marked_data = parse_marked_choice(i)
+                if is_non_reference(marked_data):
+                    logger.info(
+                        "Skipping non-reference mark for ID=%s: %r",
+                        obj_id,
+                        item.get("references"),
+                    )
+                    continue
+                if not marked_data.get("reftype") and "raw" not in marked_data:
+                    logger.info(
+                        "Skipping mark without reftype for ID=%s: %s",
+                        obj_id,
+                        marked_data,
+                    )
+                    continue
                 citation = ElementCitation.objects.create(
                     reference=obj_reference,
                     marked=marked_data,
                     marked_xml=etree.tostring(
-                        get_xml(i), pretty_print=True, encoding="unicode"
+                        get_xml(i if isinstance(i, str) else json.dumps(i)),
+                        pretty_print=True,
+                        encoding="unicode",
                     ),
                 )
                 citations_created += 1
@@ -386,6 +439,14 @@ def get_reference(obj_id):
                     citation.pk,
                     i,
                 )
+
+        if citations_created == 0:
+            logger.info(
+                "No bibliographic citations for ID=%s; deleting Reference",
+                obj_id,
+            )
+            obj_reference.delete()
+            return
 
         obj_reference.status = ReferenceStatus.READY
         obj_reference.save()

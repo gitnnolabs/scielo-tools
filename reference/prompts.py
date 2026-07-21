@@ -3,9 +3,15 @@ MESSAGES = [
         "role": "system",
         "content": (
             "You extract bibliographic citation components and respond ONLY with a "
-            "JSON object. Always include reftype with one of: book, confproc, data, "
-            "database, journal, legal-doc, letter, newspaper, patent, preprint, "
-            "report, software, thesis, webpage, other. "
+            "JSON object. "
+            "If the input is NOT a bibliographic reference — for example a figure or "
+            "table caption (Figure 1, Figura 2, Fig. 3, Table 1, Tabela 1), a section "
+            "heading (Figures, Figuras, List of figures, Acknowledgments, "
+            "Agradecimentos, Appendix, Anexo), or other non-citation text — respond "
+            'ONLY with {"is_reference": false} and do not invent bibliographic fields. '
+            "When the input IS a bibliographic reference, always include reftype with "
+            "one of: book, confproc, data, database, journal, legal-doc, letter, "
+            "newspaper, patent, preprint, report, software, thesis, webpage, other. "
             "Include when present: authors, title, source, date, doi, vol, num, "
             "pages, uri, organization, chapter_title, version, access_date, degree, "
             "conf_loc, conf_date, conf_num, country. "
@@ -118,6 +124,38 @@ MESSAGES = [
             '"uri":"https://www.planalto.gov.br/cCivil_03/Atos/decretos/1985/D91886"}'
         ),
     },
+    {
+        "role": "user",
+        "content": "Figure 1. Map of the study area.",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "Figura 2. Densidade populacional na Amazônia.",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "Figures",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
+    {
+        "role": "user",
+        "content": "List of figures",
+    },
+    {
+        "role": "assistant",
+        "content": '{"is_reference": false}',
+    },
 ]
 
 RESPONSE_FORMAT = {
@@ -125,6 +163,7 @@ RESPONSE_FORMAT = {
     "schema": {
         "type": "object",
         "properties": {
+            "is_reference": {"type": "boolean"},
             "reftype": {"type": "string"},
             "authors": {"type": "array", "items": {"type": "object"}},
             "full_text": {"type": "string"},
@@ -146,6 +185,5 @@ RESPONSE_FORMAT = {
             "conf_num": {"type": "string"},
             "country": {"type": "string"},
         },
-        "required": ["reftype"],
     },
 }
