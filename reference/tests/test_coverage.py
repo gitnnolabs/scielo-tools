@@ -134,6 +134,45 @@ def test_get_xml_thesis():
     assert xml_node.find("publisher-name").text == "USP"
 
 
+def test_get_xml_confproc_location_num_and_org_location():
+    xml_node = get_xml(
+        json.dumps(
+            {
+                "reftype": "confproc",
+                "title": "Proceedings of the 17th Workshop for Bishops",
+                "source": "Addiction and compulsive behaviors",
+                "location": "Dallas, TX",
+                "num": 17,
+                "organization": "National Catholic Bioethics Center (US)",
+                "org_location": "Boston",
+                "num_pages": 258,
+                "date": 2000,
+            }
+        )
+    )
+    assert xml_node.find("conf-loc").text == "Dallas, TX"
+    assert xml_node.find("conf-num").text == "17"
+    assert xml_node.find("publisher-loc").text == "Boston"
+    assert xml_node.find("size").text == "258"
+
+
+def test_get_xml_data_access_id():
+    xml_node = get_xml(
+        json.dumps(
+            {
+                "reftype": "data",
+                "title": "Dataset",
+                "source": "SciELO Data",
+                "doi": "https://doi.org/10.48331/scielodata.5Z4TMP",
+                "access_id": "UNF:6:Neyjad4du3rFprhupCXizA== [fileUNF]",
+                "date": 2024,
+            }
+        )
+    )
+    assert xml_node.find("pub-id").text == "10.48331/scielodata.5Z4TMP"
+    assert xml_node.find("comment").text.startswith("UNF:6:")
+
+
 def test_get_xml_confproc():
     xml_node = get_xml(
         json.dumps(

@@ -109,6 +109,68 @@ def append_citation_pages(root, pages):
     etree.SubElement(root, "lpage").text = value
 
 
+def append_fpage_lpage(root, json_reference):
+    if "fpage" in json_reference:
+        etree.SubElement(root, "fpage").text = str(json_reference["fpage"])
+        if "lpage" in json_reference:
+            etree.SubElement(root, "lpage").text = str(json_reference["lpage"])
+        else:
+            etree.SubElement(root, "lpage").text = str(json_reference["fpage"])
+        return True
+    if "pages" in json_reference:
+        append_citation_pages(root, json_reference["pages"])
+        return True
+    return False
+
+
+def normalize_doi(doi):
+    value = str(doi).strip()
+    for prefix in (
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+    ):
+        if value.lower().startswith(prefix):
+            return value[len(prefix) :].strip()
+    return value
+
+
+def append_doi(root, doi):
+    etree.SubElement(
+        root, "pub-id", attrib={"pub-id-type": "doi"}
+    ).text = normalize_doi(doi)
+
+
+def append_person_group(root, people, person_group_type):
+    person_group = etree.SubElement(
+        root,
+        "person-group",
+        attrib={"person-group-type": person_group_type},
+    )
+    for person in people:
+        if "collab" in person and "surname" not in person and "fname" not in person:
+            etree.SubElement(person_group, "collab").text = person["collab"]
+            continue
+        name = etree.Element("name")
+        if "surname" in person:
+            etree.SubElement(name, "surname").text = person["surname"]
+        if "fname" in person:
+            etree.SubElement(name, "given-names").text = person["fname"]
+        if "collab" in person:
+            etree.SubElement(name, "collab").text = person["collab"]
+        person_group.append(name)
+
+
+def append_num_pages(root, num_pages):
+    value = str(num_pages).strip()
+    if not value:
+        return
+    digits = re.search(r"\d+", value)
+    size = etree.SubElement(root, "size", attrib={"units": "pages"})
+    size.text = digits.group() if digits else value
+
+
 def append_ext_link(root, uri):
     etree.SubElement(
         root,
@@ -172,23 +234,9 @@ def get_xml(json_reference):
         )
 
     if "authors" in json_reference:
-        person_group = etree.SubElement(
-            root,
-            "person-group",
-            attrib={"person-group-type": "author"},
-        )
-        for author in json_reference["authors"]:
-            if "collab" in author and "surname" not in author and "fname" not in author:
-                etree.SubElement(person_group, "collab").text = author["collab"]
-                continue
-            name = etree.Element("name")
-            if "surname" in author:
-                etree.SubElement(name, "surname").text = author["surname"]
-            if "fname" in author:
-                etree.SubElement(name, "given-names").text = author["fname"]
-            if "collab" in author:
-                etree.SubElement(name, "collab").text = author["collab"]
-            person_group.append(name)
+        append_person_group(root, json_reference["authors"], "author")
+    if "editors" in json_reference:
+        append_person_group(root, json_reference["editors"], "editor")
 
     if reftype == "journal":
         if "title" in json_reference:
@@ -199,37 +247,43 @@ def get_xml(json_reference):
             etree.SubElement(root, "volume").text = str(json_reference["vol"])
         if "num" in json_reference:
             etree.SubElement(root, "issue").text = str(json_reference["num"])
-        if "pages" in json_reference:
-            append_citation_pages(root, json_reference["pages"])
+        append_fpage_lpage(root, json_reference)
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
 
     if reftype == "book":
-        if "chapter_title" in json_reference:
-            etree.SubElement(root, "part-title").text = json_reference["chapter_title"]
-        if "title" in json_reference and "chapter_title" not in json_reference:
-            etree.SubElement(root, "source").text = json_reference["title"]
-        elif "source" in json_reference:
+        chapter = json_reference.get("chapter") or json_reference.get("chapter_title")
+        if chapter:
+            etree.SubElement(root, "part-title").text = chapter
+        if "source" in json_reference:
             etree.SubElement(root, "source").text = json_reference["source"]
+        elif "title" in json_reference and not chapter:
+            etree.SubElement(root, "source").text = json_reference["title"]
+        if "edition" in json_reference:
+            etree.SubElement(root, "edition").text = str(json_reference["edition"])
         if "vol" in json_reference:
             etree.SubElement(root, "volume").text = str(json_reference["vol"])
-        if "pages" in json_reference:
-            append_citation_pages(root, json_reference["pages"])
+        append_fpage_lpage(root, json_reference)
         if "organization" in json_reference:
             etree.SubElement(root, "publisher-name").text = json_reference[
                 "organization"
             ]
         elif "publisher" in json_reference:
             etree.SubElement(root, "publisher-name").text = json_reference["publisher"]
+        publisher_loc = json_reference.get("location") or json_reference.get(
+            "org_location"
+        )
+        if publisher_loc:
+            etree.SubElement(root, "publisher-loc").text = publisher_loc
+        if "num_pages" in json_reference:
+            append_num_pages(root, json_reference["num_pages"])
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
 
     if reftype == "thesis":
-        if "title" in json_reference:
+        if "source" in json_reference:
+            etree.SubElement(root, "source").text = json_reference["source"]
+        elif "title" in json_reference:
             etree.SubElement(root, "source").text = json_reference["title"]
         if "degree" in json_reference:
             etree.SubElement(
@@ -239,6 +293,10 @@ def get_xml(json_reference):
             etree.SubElement(root, "publisher-name").text = json_reference[
                 "organization"
             ]
+        if "location" in json_reference:
+            etree.SubElement(root, "publisher-loc").text = json_reference["location"]
+        if "num_pages" in json_reference:
+            append_num_pages(root, json_reference["num_pages"])
 
     if reftype == "confproc":
         if "title" in json_reference:
@@ -247,20 +305,30 @@ def get_xml(json_reference):
             etree.SubElement(root, "conf-name").text = json_reference["conf_name"]
         if "source" in json_reference:
             etree.SubElement(root, "source").text = json_reference["source"]
-        if "conf_loc" in json_reference:
-            etree.SubElement(root, "conf-loc").text = json_reference["conf_loc"]
+        conf_loc = json_reference.get("conf_loc") or json_reference.get("location")
+        if conf_loc:
+            etree.SubElement(root, "conf-loc").text = conf_loc
         if "conf_date" in json_reference:
             etree.SubElement(root, "conf-date").text = str(json_reference["conf_date"])
-        if "conf_num" in json_reference:
-            etree.SubElement(root, "conf-num").text = str(json_reference["conf_num"])
+        conf_num = json_reference.get("conf_num")
+        if conf_num is None and "num" in json_reference:
+            conf_num = json_reference["num"]
+        if conf_num is not None:
+            etree.SubElement(root, "conf-num").text = str(conf_num)
         if "organization" in json_reference:
             etree.SubElement(root, "publisher-name").text = json_reference[
                 "organization"
             ]
+        if "org_location" in json_reference:
+            etree.SubElement(root, "publisher-loc").text = json_reference[
+                "org_location"
+            ]
+        if "num_pages" in json_reference:
+            append_num_pages(root, json_reference["num_pages"])
+        elif "pages" in json_reference and "fpage" not in json_reference:
+            append_num_pages(root, json_reference["pages"])
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
 
     if reftype == "data":
         if "title" in json_reference:
@@ -275,10 +343,12 @@ def get_xml(json_reference):
             etree.SubElement(root, "publisher-name").text = json_reference[
                 "organization"
             ]
+        if "location" in json_reference:
+            etree.SubElement(root, "publisher-loc").text = json_reference["location"]
+        if "access_id" in json_reference:
+            etree.SubElement(root, "comment").text = str(json_reference["access_id"])
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
         if "access_date" in json_reference:
             append_access_date(root, json_reference["access_date"])
 
@@ -293,14 +363,19 @@ def get_xml(json_reference):
             etree.SubElement(root, "publisher-name").text = json_reference[
                 "organization"
             ]
-        if "country" in json_reference:
-            etree.SubElement(root, "publisher-loc").text = json_reference["country"]
+        publisher_loc = (
+            json_reference.get("location")
+            or json_reference.get("country")
+            or json_reference.get("org_location")
+        )
+        if publisher_loc:
+            etree.SubElement(root, "publisher-loc").text = publisher_loc
         if "version" in json_reference and reftype == "software":
             etree.SubElement(root, "version").text = str(json_reference["version"])
+        if "access_id" in json_reference:
+            etree.SubElement(root, "comment").text = str(json_reference["access_id"])
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
         if "access_date" in json_reference:
             append_access_date(root, json_reference["access_date"])
 
@@ -310,9 +385,7 @@ def get_xml(json_reference):
         elif "source" in json_reference:
             etree.SubElement(root, "source").text = json_reference["source"]
         if "doi" in json_reference:
-            etree.SubElement(
-                root, "pub-id", attrib={"pub-id-type": "doi"}
-            ).text = json_reference["doi"]
+            append_doi(root, json_reference["doi"])
         if "uri" in json_reference:
             append_ext_link(root, json_reference["uri"])
 

@@ -186,7 +186,12 @@ def test_marking_raises_llama_unavailable(monkeypatch):
 
 
 def test_prompt_instructs_skip_for_figures():
-    from reference.prompts import BATCH_RESPONSE_FORMAT, MESSAGES, RESPONSE_FORMAT
+    from reference.prompts import (
+        BATCH_RESPONSE_FORMAT,
+        ITEM_PROPERTIES,
+        MESSAGES,
+        RESPONSE_FORMAT,
+    )
 
     system = MESSAGES[0]["content"]
     assert "is_reference" in system
@@ -194,9 +199,26 @@ def test_prompt_instructs_skip_for_figures():
     assert "orcid" in system.lower()
     assert "SCIENTIFIC EDITOR" in system or "editorial" in system.lower()
     assert "Responsibility" in system or "contribution" in system.lower()
+    assert "fpage" in system and "lpage" in system
+    assert "do not use pages for journal page ranges" in system
+    assert "whole work uses source only" in system
+    assert "bare id" in system.lower() or "without https://doi.org/" in system
+    assert "do not emit uri" in system
     assert RESPONSE_FORMAT["schema"].get("required") is None
     assert "results" in BATCH_RESPONSE_FORMAT["schema"]["properties"]
     assert BATCH_RESPONSE_FORMAT["schema"]["required"] == ["results"]
+    for key in (
+        "chapter",
+        "edition",
+        "fpage",
+        "lpage",
+        "location",
+        "org_location",
+        "num_pages",
+        "access_id",
+        "editors",
+    ):
+        assert key in ITEM_PROPERTIES
 
     pairs = list(zip(MESSAGES[1::2], MESSAGES[2::2]))
     skip_examples = [
@@ -209,6 +231,16 @@ def test_prompt_instructs_skip_for_figures():
     assert any("orcid.org" in text for text in skip_examples)
     assert any("SCIENTIFIC EDITOR" in text for text in skip_examples)
     assert any("Responsibility for" in text for text in skip_examples)
+
+    journal_example = next(
+        assistant["content"]
+        for user, assistant in pairs
+        if '"reftype":"journal"' in assistant["content"]
+    )
+    assert '"fpage":"117"' in journal_example
+    assert '"lpage":"126"' in journal_example
+    assert '"pages"' not in journal_example
+    assert "https://doi.org/" not in journal_example
 
 
 def test_get_xml_journal():
@@ -282,6 +314,32 @@ def test_get_xml_book_chapter_uses_part_title():
     assert xml_node.find("lpage").text == "1377"
 
 
+def test_get_xml_book_chapter_field_and_editors():
+    xml_node = get_xml(
+        json.dumps(
+            {
+                "reftype": "book",
+                "chapter": "The epidemiology of idiopathic inflammatory bowel disease",
+                "source": "Inflammatory bowel disease",
+                "edition": "4th",
+                "editors": [{"surname": "Kirsner", "fname": "JB"}],
+                "organization": "Williams & Wilkins",
+                "location": "Baltimore",
+                "fpage": "31",
+                "lpage": "68",
+                "date": 1995,
+            }
+        )
+    )
+    assert xml_node.find("part-title").text.startswith("The epidemiology")
+    assert xml_node.find("edition").text == "4th"
+    assert xml_node.find("publisher-loc").text == "Baltimore"
+    assert xml_node.find("fpage").text == "31"
+    assert xml_node.find("lpage").text == "68"
+    editors = xml_node.find('person-group[@person-group-type="editor"]')
+    assert editors.find("name/surname").text == "Kirsner"
+
+
 def test_get_xml_journal_pages_and_elocation():
     ranged = get_xml(
         json.dumps(
@@ -295,6 +353,22 @@ def test_get_xml_journal_pages_and_elocation():
     )
     assert ranged.find("fpage").text == "117"
     assert ranged.find("lpage").text == "126"
+
+    explicit = get_xml(
+        json.dumps(
+            {
+                "reftype": "journal",
+                "title": "A",
+                "source": "B",
+                "fpage": "117",
+                "lpage": "126",
+                "doi": "https://doi.org/10.3897/zookeys.150.2109",
+            }
+        )
+    )
+    assert explicit.find("fpage").text == "117"
+    assert explicit.find("lpage").text == "126"
+    assert explicit.find("pub-id").text == "10.3897/zookeys.150.2109"
 
     single = get_xml(
         json.dumps(
@@ -321,6 +395,27 @@ def test_get_xml_journal_pages_and_elocation():
     )
     assert elocation.find("elocation-id").text == "e240058"
     assert elocation.find("fpage") is None
+
+
+def test_get_xml_thesis_source_location_num_pages():
+    xml_node = get_xml(
+        json.dumps(
+            {
+                "reftype": "thesis",
+                "source": "Sur le genre Phyllanthus L.",
+                "degree": "doctorat",
+                "organization": "l’Université L. Pasteur",
+                "location": "Strasbourg, France",
+                "num_pages": 760,
+                "date": 1987,
+            }
+        )
+    )
+    assert xml_node.find("source").text == "Sur le genre Phyllanthus L."
+    assert xml_node.find("publisher-loc").text == "Strasbourg, France"
+    size = xml_node.find("size")
+    assert size.get("units") == "pages"
+    assert size.text == "760"
 
 
 def test_get_xml_data_uses_data_title():
