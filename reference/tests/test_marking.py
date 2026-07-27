@@ -359,6 +359,33 @@ def test_extract_doi_from_text_and_enrich():
     assert num_xml.find("fpage").text == "711"
     assert num_xml.find("lpage").text == "728"
 
+    from reference.data_utils import extract_uri_from_text
+
+    cran = (
+        "Augie, B. (2017). gridExtra: Miscellaneous functions for “Grid” graphics "
+        "(Version 2.3) [R package]. https://CRAN.R-project.org/package=gridExtra"
+    )
+    assert extract_uri_from_text(cran) == "https://CRAN.R-project.org/package=gridExtra"
+    with_uri = enrich_marked_from_citation(
+        {"reftype": "software", "source": "gridExtra", "version": "2.3"},
+        cran,
+    )
+    assert with_uri["uri"] == "https://CRAN.R-project.org/package=gridExtra"
+    uri_xml = get_xml(json.dumps(with_uri))
+    assert uri_xml.find("ext-link").text == (
+        "https://CRAN.R-project.org/package=gridExtra"
+    )
+
+    web_doi = (
+        "Brasil. (2024). Decreto. http://dx.doi.org/10.18542/ethnoscientia.v0i0.10245"
+    )
+    web_enriched = enrich_marked_from_citation(
+        {"reftype": "webpage", "source": "Decreto"},
+        web_doi,
+    )
+    assert web_enriched["uri"] == "http://dx.doi.org/10.18542/ethnoscientia.v0i0.10245"
+    assert "doi" not in web_enriched or web_enriched.get("doi") in (None, "")
+
 
 def test_get_xml_book():
     sample_json = json.dumps(

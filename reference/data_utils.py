@@ -162,6 +162,28 @@ def extract_doi_from_text(text):
     return None
 
 
+_URI_RE = re.compile(r"(?:https?|ftp)://[^\s<>\"')\]]+", re.IGNORECASE)
+
+
+def normalize_uri(uri):
+    if uri is None:
+        return None
+    return str(uri).strip().rstrip(".,;:)]}»\"'")
+
+
+def extract_uri_from_text(text, allow_doi=True):
+    if not text:
+        return None
+    for match in _URI_RE.finditer(str(text)):
+        uri = normalize_uri(match.group(0))
+        if not uri:
+            continue
+        if not allow_doi and "doi.org/" in uri.lower():
+            continue
+        return uri
+    return None
+
+
 _VOL_ISSUE_PAGES_RE = re.compile(
     r"(?<![A-Za-z0-9])(\d{1,4})\s*\(\s*(\d{1,4})\s*\)\s*"
     r"(?::|,)\s*([eE]?\d+)\s*[–—-]\s*([eE]?\d+)"
@@ -197,10 +219,15 @@ def _missing(value):
     return value in (None, "")
 
 
+_WEB_LIKE = ("webpage", "software", "database", "legal-doc")
+
+
 def enrich_marked_from_citation(marked_data, mixed_citation):
     if not isinstance(marked_data, dict) or is_non_reference(marked_data):
         return marked_data
     marked = dict(marked_data)
+    reftype = marked.get("reftype")
+
     doi = marked.get("doi")
     if doi not in (None, ""):
         marked["doi"] = normalize_doi(str(doi))
@@ -213,7 +240,7 @@ def enrich_marked_from_citation(marked_data, mixed_citation):
             uri = marked.get("uri")
             if uri and "doi.org/" in str(uri).lower():
                 found = normalize_doi(str(uri))
-        if found:
+        if found and reftype not in _WEB_LIKE:
             marked["doi"] = found
             doi = found
     if doi:
@@ -225,13 +252,30 @@ def enrich_marked_from_citation(marked_data, mixed_citation):
     for key in ("vol", "num", "fpage", "lpage"):
         if key in extracted and _missing(marked.get(key)):
             marked[key] = extracted[key]
+
+    if _missing(marked.get("uri")):
+        found_uri = extract_uri_from_text(
+            mixed_citation,
+            allow_doi=reftype in _WEB_LIKE,
+        )
+        if found_uri:
+            if "doi.org/" in found_uri.lower() and reftype not in _WEB_LIKE:
+                if _missing(marked.get("doi")):
+                    marked["doi"] = normalize_doi(found_uri)
+            elif "doi.org/" in found_uri.lower() and not _missing(marked.get("doi")):
+                pass
+            else:
+                marked["uri"] = found_uri
+    elif marked.get("uri"):
+        marked["uri"] = normalize_uri(marked["uri"])
+
     return marked
 
 
 def marked_gained_fields(before, after):
     if not isinstance(before, dict) or not isinstance(after, dict):
         return False
-    for key in ("doi", "num", "vol", "fpage", "lpage"):
+    for key in ("doi", "num", "vol", "fpage", "lpage", "uri"):
         if not _missing(after.get(key)) and _missing(before.get(key)):
             return True
     if before.get("uri") and "uri" not in after and after.get("doi"):
@@ -498,6 +542,13 @@ def get_xml(json_reference):
 
     if json_reference.get("doi") and root.find("pub-id[@pub-id-type='doi']") is None:
         append_doi(root, json_reference["doi"])
+
+    if (
+        json_reference.get("uri")
+        and root.find("ext-link") is None
+        and root.find("pub-id[@pub-id-type='doi']") is None
+    ):
+        append_ext_link(root, json_reference["uri"])
 
     return root
 
