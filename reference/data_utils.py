@@ -130,16 +130,120 @@ def normalize_doi(doi):
         "http://doi.org/",
         "https://dx.doi.org/",
         "http://dx.doi.org/",
+        "doi:",
     ):
         if value.lower().startswith(prefix):
-            return value[len(prefix) :].strip()
-    return value
+            value = value[len(prefix) :].strip()
+            break
+    return value.rstrip(".,;:)]}»\"'")
+
+
+_DOI_URL_RE = re.compile(
+    r"https?://(?:dx\.)?doi\.org/(10\.\d{4,9}/\S+)",
+    re.IGNORECASE,
+)
+_DOI_LABEL_RE = re.compile(
+    r"\bdoi:\s*(10\.\d{4,9}/\S+)",
+    re.IGNORECASE,
+)
+_DOI_BARE_RE = re.compile(
+    r"(?<![A-Za-z0-9])(10\.\d{4,9}/\S+)",
+    re.IGNORECASE,
+)
+
+
+def extract_doi_from_text(text):
+    if not text:
+        return None
+    for pattern in (_DOI_URL_RE, _DOI_LABEL_RE, _DOI_BARE_RE):
+        match = pattern.search(str(text))
+        if match:
+            return normalize_doi(match.group(1))
+    return None
+
+
+_VOL_ISSUE_PAGES_RE = re.compile(
+    r"(?<![A-Za-z0-9])(\d{1,4})\s*\(\s*(\d{1,4})\s*\)\s*"
+    r"(?::|,)\s*([eE]?\d+)\s*[–—-]\s*([eE]?\d+)"
+)
+_VOL_ISSUE_RE = re.compile(r"(?<![A-Za-z0-9])(\d{1,4})\s*\(\s*(\d{1,4})\s*\)\s*(?::|,)")
+_ISSUE_LABEL_RE = re.compile(
+    r"\b(?:n[oº°]\.?|núm(?:ero)?\.?|no\.?|nr\.?|number\.?|issue\.?)\s*" r"(\d{1,4})\b",
+    re.IGNORECASE,
+)
+
+
+def extract_vol_num_from_text(text):
+    if not text:
+        return {}
+    value = str(text)
+    match = _VOL_ISSUE_PAGES_RE.search(value) or _VOL_ISSUE_RE.search(value)
+    if match:
+        fields = {
+            "vol": int(match.group(1)),
+            "num": int(match.group(2)),
+        }
+        if match.lastindex and match.lastindex >= 4:
+            fields["fpage"] = match.group(3)
+            fields["lpage"] = match.group(4)
+        return fields
+    label = _ISSUE_LABEL_RE.search(value)
+    if label:
+        return {"num": int(label.group(1))}
+    return {}
+
+
+def _missing(value):
+    return value in (None, "")
+
+
+def enrich_marked_from_citation(marked_data, mixed_citation):
+    if not isinstance(marked_data, dict) or is_non_reference(marked_data):
+        return marked_data
+    marked = dict(marked_data)
+    doi = marked.get("doi")
+    if doi not in (None, ""):
+        marked["doi"] = normalize_doi(str(doi))
+        doi = marked["doi"]
+    else:
+        doi = None
+    if not doi:
+        found = extract_doi_from_text(mixed_citation)
+        if not found:
+            uri = marked.get("uri")
+            if uri and "doi.org/" in str(uri).lower():
+                found = normalize_doi(str(uri))
+        if found:
+            marked["doi"] = found
+            doi = found
+    if doi:
+        uri = marked.get("uri")
+        if uri and "doi.org/" in str(uri).lower():
+            marked.pop("uri", None)
+
+    extracted = extract_vol_num_from_text(mixed_citation)
+    for key in ("vol", "num", "fpage", "lpage"):
+        if key in extracted and _missing(marked.get(key)):
+            marked[key] = extracted[key]
+    return marked
+
+
+def marked_gained_fields(before, after):
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        return False
+    for key in ("doi", "num", "vol", "fpage", "lpage"):
+        if not _missing(after.get(key)) and _missing(before.get(key)):
+            return True
+    if before.get("uri") and "uri" not in after and after.get("doi"):
+        return True
+    return False
 
 
 def append_doi(root, doi):
-    etree.SubElement(
-        root, "pub-id", attrib={"pub-id-type": "doi"}
-    ).text = normalize_doi(doi)
+    value = normalize_doi(doi)
+    if not value:
+        return
+    etree.SubElement(root, "pub-id", attrib={"pub-id-type": "doi"}).text = value
 
 
 def append_person_group(root, people, person_group_type):
@@ -392,6 +496,9 @@ def get_xml(json_reference):
     if "date" in json_reference:
         etree.SubElement(root, "year").text = str(json_reference["date"])
 
+    if json_reference.get("doi") and root.find("pub-id[@pub-id-type='doi']") is None:
+        append_doi(root, json_reference["doi"])
+
     return root
 
 
@@ -438,6 +545,7 @@ def resolve_reference_result(
         if marked_data is None or is_non_reference(marked_data):
             logger.info("Ignoring non-reference input: %r", mixed_citation)
             return None
+        marked_data = enrich_marked_from_citation(marked_data, mixed_citation)
         if not marked_data.get("reftype"):
             logger.info(
                 "Ignoring mark without reftype: %r marked=%s",
@@ -471,10 +579,23 @@ def resolve_reference_result(
             reference.save()
 
     element = reference.element_citation.first()
+    marked = element.marked if element else {}
+    if isinstance(marked, dict):
+        enriched = enrich_marked_from_citation(marked, reference.mixed_citation)
+        if marked_gained_fields(marked, enriched):
+            marked_xml = etree.tostring(
+                get_xml(json.dumps(enriched)),
+                pretty_print=True,
+                encoding="unicode",
+            )
+            element.marked = enriched
+            element.marked_xml = marked_xml
+            element.save(update_fields=["marked", "marked_xml"])
+            marked = enriched
     if output_type in ("xml", "jats"):
         data = element.marked_xml if element else ""
     else:
-        data = element.marked if element else {}
+        data = marked if element else {}
 
     return {
         "mixed_citation": reference.mixed_citation,
@@ -530,7 +651,10 @@ def get_reference(obj_id):
         citations_created = 0
         for item in marked:
             for i in item["choices"]:
-                marked_data = parse_marked_choice(i)
+                marked_data = enrich_marked_from_citation(
+                    parse_marked_choice(i),
+                    item.get("references") or obj_reference.mixed_citation,
+                )
                 if is_non_reference(marked_data):
                     logger.info(
                         "Skipping non-reference mark for ID=%s: %r",
@@ -549,7 +673,7 @@ def get_reference(obj_id):
                     reference=obj_reference,
                     marked=marked_data,
                     marked_xml=etree.tostring(
-                        get_xml(i if isinstance(i, str) else json.dumps(i)),
+                        get_xml(json.dumps(marked_data)),
                         pretty_print=True,
                         encoding="unicode",
                     ),

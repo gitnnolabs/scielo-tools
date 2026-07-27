@@ -136,6 +136,57 @@ def test_mark_references_string_and_list_are_equivalent(monkeypatch):
 
 
 @pytest.mark.django_db
+def test_resolve_reference_result_enriches_cached_doi(monkeypatch):
+    citation = (
+        "Alvares C. A. (2013a). Modeling monthly mean air temperature for Brazil. "
+        "Theoretical and Applied Climatology, 113, 407–427. "
+        "https://doi.org/10.1007/s00704-012-0796-6"
+    )
+    reference = Reference.objects.create(
+        mixed_citation=citation,
+        status=ReferenceStatus.READY,
+    )
+    ElementCitation.objects.create(
+        reference=reference,
+        marked={"reftype": "journal", "title": "Modeling", "source": "TAC"},
+        marked_xml="<element-citation publication-type='journal'/>",
+    )
+
+    result = resolve_reference_result(citation, output_type="json")
+
+    assert result["data"]["doi"] == "10.1007/s00704-012-0796-6"
+    stored = reference.element_citation.first()
+    assert stored.marked["doi"] == "10.1007/s00704-012-0796-6"
+    assert "10.1007/s00704-012-0796-6" in stored.marked_xml
+
+
+@pytest.mark.django_db
+def test_resolve_reference_result_enriches_cached_num():
+    citation = (
+        "Alvares, C. A. (2013b). Köppen’s climate classification map for Brazil. "
+        "Meteorologische Zeitschrift, 22(6), 711–728."
+    )
+    reference = Reference.objects.create(
+        mixed_citation=citation,
+        status=ReferenceStatus.READY,
+    )
+    ElementCitation.objects.create(
+        reference=reference,
+        marked={"reftype": "journal", "title": "Köppen", "source": "MZ"},
+        marked_xml="<element-citation publication-type='journal'/>",
+    )
+
+    result = resolve_reference_result(citation, output_type="json")
+
+    assert result["data"]["num"] == 6
+    assert result["data"]["vol"] == 22
+    stored = reference.element_citation.first()
+    assert stored.marked["num"] == 6
+    assert "<issue>6</issue>" in stored.marked_xml
+    assert "<volume>22</volume>" in stored.marked_xml
+
+
+@pytest.mark.django_db
 def test_resolve_reference_result_reuses_existing_reference():
     reference = Reference.objects.create(
         mixed_citation="Smith J. Nature. 2024.",

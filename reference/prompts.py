@@ -13,14 +13,26 @@ MESSAGES = [
             "journal, legal-doc, letter, newspaper, patent, preprint, report, "
             "software, thesis, webpage, other. "
             "Person authors/editors: {surname, fname}; institution: {collab}. "
-            "DOI: bare id without https://doi.org/; do not emit uri when doi is "
-            "present; never invent doi or uri. At most one uri. "
-            "journal: title=article, source=periodical; use fpage and lpage for "
-            "page ranges (do not use pages for journal page ranges); pages only "
-            "for elocation-id. "
+            "Preserve surname/fname spelling and capitalization as in the citation; "
+            "keep initial clusters compact when the citation has no spaces (C.A not "
+            "C. A.) but do not invent missing initials. "
+            "date: string; keep letter suffixes (2013a, 2013b). "
+            "If the text has DOI: or doi.org/…, ALWAYS set doi to the bare id "
+            "(no https://doi.org/); do not emit uri when doi is present; never "
+            "invent doi or uri. At most one uri. "
+            "journal: title=article, source=periodical. Patterns like "
+            "Source, vol(num), pages or Source vol(num):pages or Source, vol, "
+            "pages → journal with vol, num when parentheses present, and "
+            "fpage/lpage (do not use pages for journal page ranges); pages only "
+            "for elocation-id. Volume+pages after a periodical name means "
+            "journal, not book. "
             "book: whole work uses source only (do not use title); chapter uses "
-            "chapter + source; thesis: source=title (no title field). "
+            "chapter + source; publisher → organization; thesis: source=title "
+            "(no title field). "
             "data: title=dataset, source=repository. "
+            "R/CRAN packages and similar download pages → software (or webpage) "
+            "with uri when present. "
+            "Copy title/source wording verbatim (keep hyphens like Above-ground). "
             "confproc/webpage/software/legal-doc: use fields when present."
         ),
     },
@@ -39,11 +51,36 @@ MESSAGES = [
             '{"reftype":"journal","authors":[{"surname":"Bachman","fname":"S."},'
             '{"surname":"Moat","fname":"J."},{"surname":"Hill","fname":"A. W."},'
             '{"surname":"de la Torre","fname":"J."},'
-            '{"surname":"Scott","fname":"B."}],"date":2011,'
+            '{"surname":"Scott","fname":"B."}],"date":"2011",'
             '"title":"Supporting Red List threat assessments with GeoCAT: '
             'geospatial conservation assessment tool","source":"ZooKeys",'
             '"vol":150,"fpage":"117","lpage":"126",'
             '"doi":"10.3897/zookeys.150.2109"}'
+        ),
+    },
+    {
+        "role": "user",
+        "content": (
+            "Alvares, C. A., Stape, J. L., Sentelhas, P. C., Gonçalves, J. L. M., "
+            "& Sparovek, G. (2013b). Köppen’s climate classification map for "
+            "Brazil. Meteorologische Zeitschrift, 22(6), 711–728. "
+            "https://doi.org/10.1127/0941-2948/2013/0507"
+        ),
+    },
+    {
+        "role": "assistant",
+        "content": (
+            '{"reftype":"journal",'
+            '"authors":[{"surname":"Alvares","fname":"C. A."},'
+            '{"surname":"Stape","fname":"J. L."},'
+            '{"surname":"Sentelhas","fname":"P. C."},'
+            '{"surname":"Gonçalves","fname":"J. L. M."},'
+            '{"surname":"Sparovek","fname":"G."}],'
+            '"date":"2013b",'
+            '"title":"Köppen’s climate classification map for Brazil",'
+            '"source":"Meteorologische Zeitschrift",'
+            '"vol":22,"num":6,"fpage":"711","lpage":"728",'
+            '"doi":"10.1127/0941-2948/2013/0507"}'
         ),
     },
     {
@@ -60,11 +97,29 @@ MESSAGES = [
             '{"reftype":"book","authors":[{"surname":"Calkins","fname":"BM"},'
             '{"surname":"Mendeloff","fname":"AI"}],'
             '"editors":[{"surname":"Kirsner","fname":"JB"},'
-            '{"surname":"Shorter","fname":"RG"}],"date":1995,'
+            '{"surname":"Shorter","fname":"RG"}],"date":"1995",'
             '"source":"Inflammatory bowel disease",'
             '"chapter":"The epidemiology of idiopathic inflammatory bowel disease",'
             '"edition":"4th","organization":"Williams & Wilkins",'
             '"location":"Baltimore","fpage":"31","lpage":"68"}'
+        ),
+    },
+    {
+        "role": "user",
+        "content": (
+            "Anderson, J. M., & Ingram, J. S. I. (1993). Tropical soil biology and "
+            "fertility: A handbook of methods (2nd ed.). CAB International."
+        ),
+    },
+    {
+        "role": "assistant",
+        "content": (
+            '{"reftype":"book",'
+            '"authors":[{"surname":"Anderson","fname":"J. M."},'
+            '{"surname":"Ingram","fname":"J. S. I."}],'
+            '"date":"1993",'
+            '"source":"Tropical soil biology and fertility: A handbook of methods",'
+            '"edition":"2nd","organization":"CAB International"}'
         ),
     },
     {
@@ -78,7 +133,7 @@ MESSAGES = [
         "role": "assistant",
         "content": (
             '{"reftype":"thesis","authors":[{"surname":"Brunel","fname":"J. F."}],'
-            '"date":1987,"source":"Sur le genre Phyllanthus L.",'
+            '"date":"1987","source":"Sur le genre Phyllanthus L.",'
             '"degree":"doctorat","organization":"l’Université L. Pasteur",'
             '"location":"Strasbourg, France","num_pages":760}'
         ),
@@ -95,22 +150,25 @@ MESSAGES = [
         "content": (
             '{"reftype":"data",'
             '"authors":[{"surname":"Felix Ribeiro","fname":"K. A."}],'
-            '"date":2025,"title":"Replication data for: Mauritia flexuosa",'
+            '"date":"2025","title":"Replication data for: Mauritia flexuosa",'
             '"source":"SciELO Data","doi":"10.48331/SCIELODATA.RIVAW4"}'
         ),
     },
     {
         "role": "user",
         "content": (
-            "Nikon Corporation. 1991-2006. NIS-Elements, version 2.33. Tokio, Japón."
+            "Augie, B. (2017). gridExtra: Miscellaneous functions for “Grid” "
+            "graphics (Version 2.3) [R package]. "
+            "https://CRAN.R-project.org/package=gridExtra"
         ),
     },
     {
         "role": "assistant",
         "content": (
-            '{"reftype":"software","authors":[{"collab":"Nikon Corporation"}],'
-            '"date":2006,"source":"NIS-Elements","version":"2.33",'
-            '"location":"Tokio, Japón"}'
+            '{"reftype":"software","authors":[{"surname":"Augie","fname":"B."}],'
+            '"date":"2017","source":"gridExtra",'
+            '"version":"2.3",'
+            '"uri":"https://CRAN.R-project.org/package=gridExtra"}'
         ),
     },
     {
@@ -126,7 +184,7 @@ MESSAGES = [
         "content": (
             '{"results":['
             '{"reftype":"journal","authors":[{"surname":"Bachman","fname":"S"}],'
-            '"date":2011,"title":"Supporting Red List","source":"ZooKeys",'
+            '"date":"2011","title":"Supporting Red List","source":"ZooKeys",'
             '"vol":150,"fpage":"117","lpage":"126",'
             '"doi":"10.3897/zookeys.150.2109"},'
             '{"is_reference": false}'
@@ -184,7 +242,7 @@ ITEM_PROPERTIES = {
     "authors": {"type": "array", "items": {"type": "object"}},
     "editors": {"type": "array", "items": {"type": "object"}},
     "full_text": {"type": "string"},
-    "date": {"type": "integer"},
+    "date": {"type": "string"},
     "title": {"type": "string"},
     "source": {"type": "string"},
     "chapter": {"type": "string"},

@@ -204,6 +204,9 @@ def test_prompt_instructs_skip_for_figures():
     assert "whole work uses source only" in system
     assert "bare id" in system.lower() or "without https://doi.org/" in system
     assert "do not emit uri" in system
+    assert "2013a" in system or "letter suffix" in system.lower()
+    assert "vol(num)" in system or "parentheses" in system.lower()
+    assert ITEM_PROPERTIES["date"]["type"] == "string"
     assert RESPONSE_FORMAT["schema"].get("required") is None
     assert "results" in BATCH_RESPONSE_FORMAT["schema"]["properties"]
     assert BATCH_RESPONSE_FORMAT["schema"]["required"] == ["results"]
@@ -236,11 +239,24 @@ def test_prompt_instructs_skip_for_figures():
         assistant["content"]
         for user, assistant in pairs
         if '"reftype":"journal"' in assistant["content"]
+        and "2013b" in assistant["content"]
     )
-    assert '"fpage":"117"' in journal_example
-    assert '"lpage":"126"' in journal_example
-    assert '"pages"' not in journal_example
+    assert '"date":"2013b"' in journal_example
+    assert '"num":6' in journal_example
+    assert '"doi":"10.1127/0941-2948/2013/0507"' in journal_example
+    assert '"fpage":"711"' in journal_example
+    assert '"lpage":"728"' in journal_example
     assert "https://doi.org/" not in journal_example
+
+    zoo_example = next(
+        assistant["content"]
+        for user, assistant in pairs
+        if "ZooKeys" in assistant["content"] and '"results"' not in assistant["content"]
+    )
+    assert '"fpage":"117"' in zoo_example
+    assert '"lpage":"126"' in zoo_example
+    assert '"pages"' not in zoo_example
+    assert "https://doi.org/" not in zoo_example
 
 
 def test_get_xml_journal():
@@ -277,6 +293,71 @@ def test_get_xml_journal():
     pub_id = xml_node.find("pub-id")
     assert pub_id.get("pub-id-type") == "doi"
     assert pub_id.text == "10.1000/test"
+
+
+def test_extract_doi_from_text_and_enrich():
+    from reference.data_utils import (
+        enrich_marked_from_citation,
+        extract_doi_from_text,
+        extract_vol_num_from_text,
+    )
+
+    citation = (
+        "Alvares, C. A. (2013a). Modeling. Theoretical and Applied Climatology, "
+        "113, 407–427. https://doi.org/10.1007/s00704-012-0796-6"
+    )
+    assert extract_doi_from_text(citation) == "10.1007/s00704-012-0796-6"
+    assert (
+        extract_doi_from_text("DOI: 10.3897/zookeys.150.2109.")
+        == "10.3897/zookeys.150.2109"
+    )
+
+    enriched = enrich_marked_from_citation(
+        {"reftype": "journal", "title": "Modeling", "source": "TAC"},
+        citation,
+    )
+    assert enriched["doi"] == "10.1007/s00704-012-0796-6"
+
+    from_uri = enrich_marked_from_citation(
+        {
+            "reftype": "journal",
+            "uri": "https://doi.org/10.1127/0941-2948/2013/0507",
+        },
+        "No doi label here",
+    )
+    assert from_uri["doi"] == "10.1127/0941-2948/2013/0507"
+    assert "uri" not in from_uri
+
+    xml_node = get_xml(json.dumps(enriched))
+    assert xml_node.find("pub-id[@pub-id-type='doi']").text == (
+        "10.1007/s00704-012-0796-6"
+    )
+
+    issue_citation = (
+        "Alvares, C. A. (2013b). Köppen’s climate classification map for Brazil. "
+        "Meteorologische Zeitschrift, 22(6), 711–728. "
+        "https://doi.org/10.1127/0941-2948/2013/0507"
+    )
+    assert extract_vol_num_from_text(issue_citation) == {
+        "vol": 22,
+        "num": 6,
+        "fpage": "711",
+        "lpage": "728",
+    }
+    with_num = enrich_marked_from_citation(
+        {"reftype": "journal", "title": "Köppen", "source": "MZ"},
+        issue_citation,
+    )
+    assert with_num["vol"] == 22
+    assert with_num["num"] == 6
+    assert with_num["fpage"] == "711"
+    assert with_num["lpage"] == "728"
+    assert with_num["doi"] == "10.1127/0941-2948/2013/0507"
+    num_xml = get_xml(json.dumps(with_num))
+    assert num_xml.find("volume").text == "22"
+    assert num_xml.find("issue").text == "6"
+    assert num_xml.find("fpage").text == "711"
+    assert num_xml.find("lpage").text == "728"
 
 
 def test_get_xml_book():
