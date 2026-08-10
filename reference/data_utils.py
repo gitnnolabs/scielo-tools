@@ -106,7 +106,6 @@ def append_citation_pages(root, pages):
         etree.SubElement(root, "elocation-id").text = value
         return
     etree.SubElement(root, "fpage").text = value
-    etree.SubElement(root, "lpage").text = value
 
 
 def append_fpage_lpage(root, json_reference):
@@ -114,8 +113,6 @@ def append_fpage_lpage(root, json_reference):
         etree.SubElement(root, "fpage").text = str(json_reference["fpage"])
         if "lpage" in json_reference:
             etree.SubElement(root, "lpage").text = str(json_reference["lpage"])
-        else:
-            etree.SubElement(root, "lpage").text = str(json_reference["fpage"])
         return True
     if "pages" in json_reference:
         append_citation_pages(root, json_reference["pages"])

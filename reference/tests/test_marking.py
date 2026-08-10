@@ -201,6 +201,8 @@ def test_prompt_instructs_skip_for_figures():
     assert "Responsibility" in system or "contribution" in system.lower()
     assert "fpage" in system and "lpage" in system
     assert "do not use pages for journal page ranges" in system
+    assert "Abbreviated end pages" in system
+    assert "Single page" in system
     assert "whole work uses source only" in system
     assert "bare id" in system.lower() or "without https://doi.org/" in system
     assert "do not emit uri" in system
@@ -257,6 +259,23 @@ def test_prompt_instructs_skip_for_figures():
     assert '"lpage":"126"' in zoo_example
     assert '"pages"' not in zoo_example
     assert "https://doi.org/" not in zoo_example
+
+    abbreviated = next(
+        assistant["content"]
+        for user, assistant in pairs
+        if "1751-2" in user["content"]
+    )
+    assert '"fpage":"1751"' in abbreviated
+    assert '"lpage":"1752"' in abbreviated
+
+    single_page = next(
+        assistant["content"]
+        for user, assistant in pairs
+        if ", 237." in user["content"] or " 237." in user["content"]
+    )
+    assert '"fpage":"237"' in single_page
+    assert '"lpage"' not in single_page
+    assert "237-237" not in single_page
 
 
 def test_get_xml_journal():
@@ -489,7 +508,7 @@ def test_get_xml_journal_pages_and_elocation():
         )
     )
     assert single.find("fpage").text == "244"
-    assert single.find("lpage").text == "244"
+    assert single.find("lpage") is None
 
     elocation = get_xml(
         json.dumps(

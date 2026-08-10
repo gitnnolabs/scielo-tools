@@ -26,6 +26,10 @@ MESSAGES = [
             "fpage/lpage (do not use pages for journal page ranges); pages only "
             "for elocation-id. Volume+pages after a periodical name means "
             "journal, not book. "
+            "Abbreviated end pages (Vancouver: 1751-2, 1105-10, 83-9) → expand "
+            "lpage with the fpage prefix (1751/1752, 1105/1110, 83/89); never "
+            "leave lpage truncated. Single page → fpage only (no lpage, no "
+            "pages like 237-237). "
             "book: whole work uses source only (do not use title); chapter uses "
             "chapter + source; publisher → organization; thesis: source=title "
             "(no title field). "
@@ -81,6 +85,44 @@ MESSAGES = [
             '"source":"Meteorologische Zeitschrift",'
             '"vol":22,"num":6,"fpage":"711","lpage":"728",'
             '"doi":"10.1127/0941-2948/2013/0507"}'
+        ),
+    },
+    {
+        "role": "user",
+        "content": (
+            "Silva, A. B., & Costa, C. D. (2020). Abbreviated pagination example. "
+            "Journal of Examples, 12(3), 1751-2. "
+            "https://doi.org/10.1234/example.1751"
+        ),
+    },
+    {
+        "role": "assistant",
+        "content": (
+            '{"reftype":"journal",'
+            '"authors":[{"surname":"Silva","fname":"A. B."},'
+            '{"surname":"Costa","fname":"C. D."}],'
+            '"date":"2020",'
+            '"title":"Abbreviated pagination example",'
+            '"source":"Journal of Examples",'
+            '"vol":12,"num":3,"fpage":"1751","lpage":"1752",'
+            '"doi":"10.1234/example.1751"}'
+        ),
+    },
+    {
+        "role": "user",
+        "content": (
+            "Oliveira, M. (2019). Single page note. Rev. Exemplo, 5(1), 237. "
+            "https://doi.org/10.1234/example.237"
+        ),
+    },
+    {
+        "role": "assistant",
+        "content": (
+            '{"reftype":"journal",'
+            '"authors":[{"surname":"Oliveira","fname":"M."}],'
+            '"date":"2019","title":"Single page note","source":"Rev. Exemplo",'
+            '"vol":5,"num":1,"fpage":"237",'
+            '"doi":"10.1234/example.237"}'
         ),
     },
     {

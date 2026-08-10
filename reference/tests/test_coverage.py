@@ -17,6 +17,7 @@ from reference.create_forms import ReferenceCreateAdminForm
 from reference.data_utils import (
     append_access_date,
     append_citation_pages,
+    append_fpage_lpage,
     build_ref_list,
     get_number_of_month,
     get_reference,
@@ -50,6 +51,19 @@ def test_append_citation_pages_empty():
     append_citation_pages(root, "   ")
     assert list(root) == []
 
+
+def test_append_citation_pages_single_page_omits_lpage():
+    root = etree.Element("element-citation")
+    append_citation_pages(root, "244")
+    assert root.find("fpage").text == "244"
+    assert root.find("lpage") is None
+
+
+def test_append_fpage_lpage_single_fpage_omits_lpage():
+    root = etree.Element("element-citation")
+    assert append_fpage_lpage(root, {"fpage": "237"}) is True
+    assert root.find("fpage").text == "237"
+    assert root.find("lpage") is None
 
 def test_append_access_date_with_and_without_year():
     with_year = etree.Element("element-citation")
