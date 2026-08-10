@@ -1,5 +1,6 @@
 WAGTAIL_MENU_GROUPS_ORDER = [
     "celery_wagtail",
+    "reference",
 ]
 
 

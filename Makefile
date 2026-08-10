@@ -63,14 +63,19 @@ django_createsuperuser: ## Create a superuser
 django_bash: ## Open bash in django container
 	docker compose -f $(COMPOSE_FILE) run --rm django bash
 
-test: ## Run tests (pytest default)
-	docker compose -f $(COMPOSE_FILE) run --rm django pytest --reuse-db
+test: ## Run tests (pytest default, excludes llama eval)
+	docker compose -f $(COMPOSE_FILE) run --rm django pytest --reuse-db -m "not llama"
+
+test-llama: ## Run Llama reference eval tests (requires Ollama)
+	docker compose -f $(COMPOSE_FILE) run --rm django pytest --reuse-db -m llama reference/tests/test_references.py
 
 test-fast: ## Run tests (pytest failfast)
-	docker compose -f $(COMPOSE_FILE) run --rm django pytest -x --reuse-db
+	docker compose -f $(COMPOSE_FILE) run --rm django pytest -x --reuse-db -m "not llama"
 
-test-cov: ## Run tests with coverage
-	docker compose -f $(COMPOSE_FILE) run --rm django pytest --reuse-db --cov=manuscripts --cov-report=term-missing manuscripts/tests
+test-cov: ## Run tests with coverage (reference, fail under 100%)
+	docker compose -f $(COMPOSE_FILE) run --rm django pytest --reuse-db -m "not llama" \
+		--cov=reference --cov-report=term-missing --cov-fail-under=100 \
+		reference/tests
 
 test-fresh: ## Recreate test database and run pytest
 	docker compose -f $(COMPOSE_FILE) run --rm django pytest --create-db
@@ -119,6 +124,33 @@ restore_data: ## Restore database from backup/latest.sql
 
 volume_down: ## Remove all volumes
 	docker compose -f $(COMPOSE_FILE) down -v
+
+############################################
+## ollama / reference
+############################################
+
+REFERENCE_MODEL ?= llama3.2:3b
+
+ollama_pull: ## Pull Llama model into local ollama container
+	docker compose -f $(COMPOSE_FILE) exec ollama ollama pull $(REFERENCE_MODEL)
+
+############################################
+## JWT
+############################################
+
+JWT_USERNAME ?=
+JWT_PASSWORD ?=
+
+bearer_token: ## eval "$$(make bearer_token JWT_USERNAME=u JWT_PASSWORD=p)" then curl -H "Authorization: Bearer $$TOKEN"
+	@test -n "$(JWT_USERNAME)" && test -n "$(JWT_PASSWORD)" || (echo 'Usage: eval "$$(make bearer_token JWT_USERNAME=user JWT_PASSWORD=pass)"' >&2 && exit 1)
+	@TOKEN=$$(docker compose -f $(COMPOSE_FILE) run --rm -T \
+		-e JWT_USERNAME=$(JWT_USERNAME) \
+		-e JWT_PASSWORD=$(JWT_PASSWORD) \
+		django python manage.py shell -c "from django.contrib.auth import authenticate; from rest_framework_simplejwt.tokens import RefreshToken; import os, sys; user = authenticate(username=os.environ['JWT_USERNAME'], password=os.environ['JWT_PASSWORD']); sys.exit(1) if not user else print(RefreshToken.for_user(user).access_token)" \
+		2>/dev/null | tr -d '\r' | grep -Eo 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' | tail -n 1); \
+	if [ -z "$$TOKEN" ]; then echo "Failed to obtain JWT (check JWT_USERNAME/JWT_PASSWORD)" >&2; exit 1; fi; \
+	printf '%s\n' "$$TOKEN" > .token; \
+	printf "export TOKEN='%s'\n" "$$TOKEN"
 
 ############################################
 ## Cleanup

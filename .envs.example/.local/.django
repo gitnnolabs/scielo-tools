@@ -8,3 +8,13 @@ REDIS_URL=redis://redis:6379/0
 
 # Celery
 # ------------------------------------------------------------------------------
+
+# Reference (Llama via HTTP — serviço ollama no local.yml)
+# ------------------------------------------------------------------------------
+REFERENCE_ENABLED=true
+REFERENCE_URL=http://ollama:11434
+REFERENCE_MODEL=llama3.2:3b
+# REFERENCE_TOKEN=
+# REFERENCE_TIMEOUT=300
+# REFERENCE_BATCH_SIZE=10
+# REFERENCE_NUM_CTX=8192

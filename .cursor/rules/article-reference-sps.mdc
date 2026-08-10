@@ -1,0 +1,64 @@
+---
+description: Marcação SPS de referências bibliográficas (ref-list / element-citation)
+globs: reference/**/*
+alwaysApply: true
+---
+
+# Lista de referências (SciELO SPS)
+
+Ao marcar, gerar ou validar referências em XML/JSON neste projeto, seguir Critérios SciELO Brasil / SPS.
+
+## Estrutura obrigatória
+
+- `<ref-list>` em `<back>` (obrigatório em documentos indexáveis, exceto errata, retratação, adendo, preocupação, parecer).
+- Cada `<ref>` contém **obrigatoriamente** `<mixed-citation>` e `<element-citation>`.
+- `<element-citation>` exige `@publication-type`.
+
+| Tag | Função |
+|---|---|
+| `mixed-citation` | Texto da referência como apresentado (espaços, pontuação). Só formatação: `bold`, `italic`, `sup`, `sub`. |
+| `element-citation` | Marcação estruturada para métricas. Sem pontuação entre elementos filhos. |
+
+## `@publication-type` permitidos
+
+`book` · `confproc` · `data` · `database` · `journal` · `legal-doc` · `letter` · `newspaper` · `patent` · `preprint` · `report` · `software` · `thesis` · `webpage` · `other`
+
+## Títulos por tipo
+
+| Tipo | Tag de título |
+|---|---|
+| `journal` | `article-title` + `source` (periódico) |
+| `book` (obra) | `source` |
+| `book` (capítulo) | `part-title` (capítulo) + `source` (livro). **Não** usar `chapter-title`. |
+| `data` | `data-title` + `source` |
+| `confproc` | `conf-name` (+ `conf-loc`, `conf-date`, `conf-num`, `conf-sponsor` quando houver) |
+| `webpage` | `source` |
+
+## Regras de marcação
+
+- Preferir `source` + `year` quando a norma bibliográfica for completa.
+- Autoria: `person-group` com `@person-group-type` (`author`, `editor`, `translator`, `compiler`). Nome único → só `surname`. Instituição → `collab` (com `author`).
+- `fpage` implica `lpage`.
+- `size` → `@units="pages"`.
+- `date-in-citation` → `@content-type="access-date"`.
+- DOI: `pub-id` com `@pub-id-type="doi"`.
+- URL: `ext-link` com `@ext-link-type="uri"` (ou `doi`). **No máximo um** `ext-link` em `element-citation` e em `mixed-citation`.
+- Sem elemento específico → `comment`. Proibido `<comment><ext-link>…</ext-link></comment>`; permitido texto + `ext-link` dentro de `comment`.
+- Não envolver o texto inteiro de um elemento só com `italic`/`bold` em `element-citation`.
+
+## Fixtures e testes do app `reference`
+
+- Corpus de entrada: `reference/fixtures/references.txt` (uma ref por linha) → constante `REFERENCES`.
+- Golden JATS: `reference/fixtures/references.xml` (`ref-list`).
+- Contagens de `.txt` e `.xml` devem coincidir (`test_eval_corpus_aligned`).
+
+## Código local
+
+- JSON → XML: `reference/data_utils.get_xml` (campo `reftype` = `@publication-type`).
+- Ao evoluir o gerador, alinhar tags ao SPS (`part-title` para capítulos, tipos `data`/`software`/`legal-doc`, etc.).
+
+## Referências externas
+
+- Critérios SciELO Brasil 5.2.8.1 (XML / SPS)
+- Guia de citação de dados de pesquisa
+- Sample PubMed Central Citations
