@@ -43,31 +43,9 @@ MESSAGES = [
     {
         "role": "user",
         "content": (
-            "Bachman, S., J. Moat, A. W. Hill, J. de la Torre and B. Scott. 2011. "
-            "Supporting Red List threat assessments with GeoCAT: geospatial "
-            "conservation assessment tool. ZooKeys 150: 117-126. DOI: "
-            "https://doi.org/10.3897/zookeys.150.2109"
-        ),
-    },
-    {
-        "role": "assistant",
-        "content": (
-            '{"reftype":"journal","authors":[{"surname":"Bachman","fname":"S."},'
-            '{"surname":"Moat","fname":"J."},{"surname":"Hill","fname":"A. W."},'
-            '{"surname":"de la Torre","fname":"J."},'
-            '{"surname":"Scott","fname":"B."}],"date":"2011",'
-            '"title":"Supporting Red List threat assessments with GeoCAT: '
-            'geospatial conservation assessment tool","source":"ZooKeys",'
-            '"vol":150,"fpage":"117","lpage":"126",'
-            '"doi":"10.3897/zookeys.150.2109"}'
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
             "Alvares, C. A., Stape, J. L., Sentelhas, P. C., Gonçalves, J. L. M., "
             "& Sparovek, G. (2013b). Köppen’s climate classification map for "
-            "Brazil. Meteorologische Zeitschrift, 22(6), 711–728. "
+            "Brazil. Meteorologische Zeitschrift, 22(6), 1751-2. "
             "https://doi.org/10.1127/0941-2948/2013/0507"
         ),
     },
@@ -83,46 +61,8 @@ MESSAGES = [
             '"date":"2013b",'
             '"title":"Köppen’s climate classification map for Brazil",'
             '"source":"Meteorologische Zeitschrift",'
-            '"vol":22,"num":6,"fpage":"711","lpage":"728",'
+            '"vol":22,"num":6,"fpage":"1751","lpage":"1752",'
             '"doi":"10.1127/0941-2948/2013/0507"}'
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Silva, A. B., & Costa, C. D. (2020). Abbreviated pagination example. "
-            "Journal of Examples, 12(3), 1751-2. "
-            "https://doi.org/10.1234/example.1751"
-        ),
-    },
-    {
-        "role": "assistant",
-        "content": (
-            '{"reftype":"journal",'
-            '"authors":[{"surname":"Silva","fname":"A. B."},'
-            '{"surname":"Costa","fname":"C. D."}],'
-            '"date":"2020",'
-            '"title":"Abbreviated pagination example",'
-            '"source":"Journal of Examples",'
-            '"vol":12,"num":3,"fpage":"1751","lpage":"1752",'
-            '"doi":"10.1234/example.1751"}'
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Oliveira, M. (2019). Single page note. Rev. Exemplo, 5(1), 237. "
-            "https://doi.org/10.1234/example.237"
-        ),
-    },
-    {
-        "role": "assistant",
-        "content": (
-            '{"reftype":"journal",'
-            '"authors":[{"surname":"Oliveira","fname":"M."}],'
-            '"date":"2019","title":"Single page note","source":"Rev. Exemplo",'
-            '"vol":5,"num":1,"fpage":"237",'
-            '"doi":"10.1234/example.237"}'
         ),
     },
     {
@@ -167,33 +107,20 @@ MESSAGES = [
     {
         "role": "user",
         "content": (
-            "Brunel, J. F. 1987. Sur le genre Phyllanthus L. Thèse de doctorat "
-            "de l’Université L. Pasteur. Strasbourg, France. 760 pp."
+            "Brasil. (2024). Decreto nº 91.886, de 05 de novembro de 1985. "
+            "Diário Oficial da União. "
+            "https://www.planalto.gov.br/cCivil_03/Atos/decretos/1985/D91886"
         ),
     },
     {
         "role": "assistant",
         "content": (
-            '{"reftype":"thesis","authors":[{"surname":"Brunel","fname":"J. F."}],'
-            '"date":"1987","source":"Sur le genre Phyllanthus L.",'
-            '"degree":"doctorat","organization":"l’Université L. Pasteur",'
-            '"location":"Strasbourg, France","num_pages":760}'
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Felix Ribeiro, K. A. (2025). Replication data for: Mauritia flexuosa. "
-            "SciELO Data. https://doi.org/10.48331/SCIELODATA.RIVAW4"
-        ),
-    },
-    {
-        "role": "assistant",
-        "content": (
-            '{"reftype":"data",'
-            '"authors":[{"surname":"Felix Ribeiro","fname":"K. A."}],'
-            '"date":"2025","title":"Replication data for: Mauritia flexuosa",'
-            '"source":"SciELO Data","doi":"10.48331/SCIELODATA.RIVAW4"}'
+            '{"reftype":"legal-doc","authors":[{"collab":"Brasil"}],'
+            '"date":"2024",'
+            '"source":"Decreto nº 91.886, de 05 de novembro de 1985. '
+            'Diário Oficial da União",'
+            '"uri":"https://www.planalto.gov.br/cCivil_03/Atos/decretos/'
+            '1985/D91886"}'
         ),
     },
     {
@@ -216,65 +143,25 @@ MESSAGES = [
     {
         "role": "user",
         "content": (
-            "1. Bachman S et al. 2011. Supporting Red List. ZooKeys 150:117-126. "
-            "DOI: 10.3897/zookeys.150.2109\n"
-            "2. Figure 1. Map of the study area."
+            "1. Felix Ribeiro, K. A. (2025). Replication data for: Mauritia "
+            "flexuosa. SciELO Data. "
+            "https://doi.org/10.48331/SCIELODATA.RIVAW4\n"
+            "2. Figure 1. Map of the study area.\n"
+            "3. https://orcid.org/0000-0003-4872-7252"
         ),
     },
     {
         "role": "assistant",
         "content": (
             '{"results":['
-            '{"reftype":"journal","authors":[{"surname":"Bachman","fname":"S"}],'
-            '"date":"2011","title":"Supporting Red List","source":"ZooKeys",'
-            '"vol":150,"fpage":"117","lpage":"126",'
-            '"doi":"10.3897/zookeys.150.2109"},'
+            '{"reftype":"data",'
+            '"authors":[{"surname":"Felix Ribeiro","fname":"K. A."}],'
+            '"date":"2025","title":"Replication data for: Mauritia flexuosa",'
+            '"source":"SciELO Data","doi":"10.48331/SCIELODATA.RIVAW4"},'
+            '{"is_reference": false},'
             '{"is_reference": false}'
             "]}"
         ),
-    },
-    {
-        "role": "user",
-        "content": "Figure 1. Map of the study area.",
-    },
-    {
-        "role": "assistant",
-        "content": '{"is_reference": false}',
-    },
-    {
-        "role": "user",
-        "content": "Figura 2. Densidade populacional na Amazônia.",
-    },
-    {
-        "role": "assistant",
-        "content": '{"is_reference": false}',
-    },
-    {
-        "role": "user",
-        "content": "https://orcid.org/0000-0003-4872-7252",
-    },
-    {
-        "role": "assistant",
-        "content": '{"is_reference": false}',
-    },
-    {
-        "role": "user",
-        "content": "SCIENTIFIC EDITOR",
-    },
-    {
-        "role": "assistant",
-        "content": '{"is_reference": false}',
-    },
-    {
-        "role": "user",
-        "content": (
-            "Responsibility for all aspects of the content and the integrity of "
-            "the published article. Camila Lima Ribeiro, Marcelle Miranda da Silva."
-        ),
-    },
-    {
-        "role": "assistant",
-        "content": '{"is_reference": false}',
     },
 ]
 

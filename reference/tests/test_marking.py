@@ -226,16 +226,7 @@ def test_prompt_instructs_skip_for_figures():
         assert key in ITEM_PROPERTIES
 
     pairs = list(zip(MESSAGES[1::2], MESSAGES[2::2]))
-    skip_examples = [
-        user["content"]
-        for user, assistant in pairs
-        if assistant["content"] == '{"is_reference": false}'
-    ]
-    assert any("Figure 1" in text for text in skip_examples)
-    assert any("Figura" in text for text in skip_examples)
-    assert any("orcid.org" in text for text in skip_examples)
-    assert any("SCIENTIFIC EDITOR" in text for text in skip_examples)
-    assert any("Responsibility for" in text for text in skip_examples)
+    assert len(pairs) == 6
 
     journal_example = next(
         assistant["content"]
@@ -246,36 +237,39 @@ def test_prompt_instructs_skip_for_figures():
     assert '"date":"2013b"' in journal_example
     assert '"num":6' in journal_example
     assert '"doi":"10.1127/0941-2948/2013/0507"' in journal_example
-    assert '"fpage":"711"' in journal_example
-    assert '"lpage":"728"' in journal_example
+    assert '"fpage":"1751"' in journal_example
+    assert '"lpage":"1752"' in journal_example
+    assert '"pages"' not in journal_example
     assert "https://doi.org/" not in journal_example
+    journal_user = next(
+        user["content"]
+        for user, assistant in pairs
+        if "1751-2" in user["content"] and "2013b" in user["content"]
+    )
+    assert "1751-2" in journal_user
 
-    zoo_example = next(
+    legal_example = next(
         assistant["content"]
         for user, assistant in pairs
-        if "ZooKeys" in assistant["content"] and '"results"' not in assistant["content"]
+        if '"reftype":"legal-doc"' in assistant["content"]
     )
-    assert '"fpage":"117"' in zoo_example
-    assert '"lpage":"126"' in zoo_example
-    assert '"pages"' not in zoo_example
-    assert "https://doi.org/" not in zoo_example
+    assert '"collab":"Brasil"' in legal_example
+    assert '"uri"' in legal_example
 
-    abbreviated = next(
+    batch_example = next(
         assistant["content"]
         for user, assistant in pairs
-        if "1751-2" in user["content"]
+        if '"results"' in assistant["content"]
     )
-    assert '"fpage":"1751"' in abbreviated
-    assert '"lpage":"1752"' in abbreviated
-
-    single_page = next(
-        assistant["content"]
+    assert '"reftype":"data"' in batch_example
+    assert batch_example.count('{"is_reference": false}') == 2
+    batch_user = next(
+        user["content"]
         for user, assistant in pairs
-        if ", 237." in user["content"] or " 237." in user["content"]
+        if '"results"' in assistant["content"]
     )
-    assert '"fpage":"237"' in single_page
-    assert '"lpage"' not in single_page
-    assert "237-237" not in single_page
+    assert "Figure 1" in batch_user
+    assert "orcid.org" in batch_user
 
 
 def test_get_xml_journal():
