@@ -42,6 +42,14 @@ class Provider:
         self.timeout = getattr(settings, "REFERENCE_TIMEOUT", 300)
         self.token = getattr(settings, "REFERENCE_TOKEN", "") or ""
         self.num_ctx = int(getattr(settings, "REFERENCE_NUM_CTX", 8192) or 8192)
+        raw_keep_alive = getattr(settings, "REFERENCE_KEEP_ALIVE", "-1")
+        if raw_keep_alive is None or raw_keep_alive == "":
+            self.keep_alive = None
+        else:
+            try:
+                self.keep_alive = int(raw_keep_alive)
+            except (TypeError, ValueError):
+                self.keep_alive = str(raw_keep_alive)
 
     def run(self, user_input):
         messages = self.messages.copy()
@@ -72,8 +80,9 @@ class Provider:
             "stream": False,
         }
         if self.response_format and self.response_format.get("type") == "json_object":
-            schema = self.response_format.get("schema")
-            payload["format"] = schema if schema else "json"
+            payload["format"] = "json"
+        if self.keep_alive is not None:
+            payload["keep_alive"] = self.keep_alive
 
         headers = {}
         if self.token:
