@@ -23,7 +23,11 @@ from manuscript.services.marking_jobs import (
     marking_status_payload,
 )
 from manuscript.services.workflow import WorkflowError, approve_front
-from manuscript.tasks import persist_body_result, persist_front_result
+from manuscript.tasks import (
+    persist_back_result,
+    persist_body_result,
+    persist_front_result,
+)
 
 
 class MarkingJobsTests(TestCase):
@@ -138,6 +142,38 @@ class MarkingJobsTests(TestCase):
             manuscript=self.manuscript, part=ManuscriptMarkingPart.FRONT
         )
         self.assertEqual(front_run.status, ManuscriptMarkingRunStatus.DONE)
+        self.assertEqual(front_run.endpoints, "local")
+        body_run = ManuscriptMarkingRun.objects.get(
+            manuscript=self.manuscript, part=ManuscriptMarkingPart.BODY
+        )
+        self.assertEqual(body_run.endpoints, "local")
+
+    def test_persist_back_records_both_endpoints(self):
+        ManuscriptMarkingRun.objects.create(
+            manuscript=self.manuscript,
+            part=ManuscriptMarkingPart.BACK,
+            status=ManuscriptMarkingRunStatus.PENDING,
+        )
+        persist_back_result(
+            {
+                "items": [
+                    {
+                        "mixed_citation": "Smith J. Nature. 2024.",
+                        "data": {"reftype": "journal", "source": "Nature"},
+                    }
+                ],
+                "endpoints": "both",
+            },
+            self.manuscript.pk,
+            self.user.pk,
+        )
+        run = ManuscriptMarkingRun.objects.get(
+            manuscript=self.manuscript, part=ManuscriptMarkingPart.BACK
+        )
+        self.assertEqual(run.status, ManuscriptMarkingRunStatus.DONE)
+        self.assertEqual(run.endpoints, "both")
+        payload = marking_status_payload(self.manuscript)
+        self.assertEqual(payload["back"]["endpoints"], "both")
 
     def test_status_payload_defaults_to_idle(self):
         payload = marking_status_payload(self.manuscript)

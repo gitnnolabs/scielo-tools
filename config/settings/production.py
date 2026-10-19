@@ -1,6 +1,9 @@
 import logging
 
 import sentry_sdk
+from django.contrib.staticfiles.storage import (
+    ManifestStaticFilesStorage as DjangoManifestStaticFilesStorage,
+)
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -8,6 +11,21 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 from .base import *  # noqa
 from .base import env
+
+
+class ForgivingManifestStaticFilesStorage(DjangoManifestStaticFilesStorage):
+    manifest_strict = False
+
+    def hashed_name(self, name, content=None, filename=None):
+        try:
+            return super().hashed_name(name, content=content, filename=filename)
+        except ValueError:
+            return name
+
+
+STORAGES["staticfiles"]["BACKEND"] = (  # noqa F405
+    "config.settings.production.ForgivingManifestStaticFilesStorage"
+)
 
 # GENERAL
 # ------------------------------------------------------------------------------

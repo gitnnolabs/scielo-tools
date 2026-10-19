@@ -45,6 +45,15 @@ make up
 
 A aplicação fica em http://localhost:8000 (container `django`).
 
+### Produção
+
+```bash
+cp -r .envs.example/.production .envs/.production
+docker compose -f production.yml up -d --build
+```
+
+O `production.yml` usa as imagens de `compose/production` (Gunicorn na porta 5000, Postgres, Redis, Celery e Ollama). O Traefik publica 80 e 443. O projeto Compose é `scielo_tools_production`, separado do `local.yml`. `FRONT_URL`, `BODY_URL` e `REFERENCE_URL` apontam para `http://ollama:11434`.
+
 ### Opção 2 — Django no host com `./local.sh`
 
 Útil para depurar no IDE: Postgres, Redis, Mailhog e Celery continuam no Docker; o `runserver` roda na máquina.
@@ -70,7 +79,7 @@ O script:
 2. Usa `.venv/bin/python`, ou `python3.14`, ou `python3`, e exige Django instalado no ambiente escolhido.
 3. Para o container `django` e sobe `postgres`, `redis`, `mailhog`, `celeryworker` e `celerybeat` via `local.yml`.
 4. Define `USE_DOCKER=no`, `DJANGO_SETTINGS_MODULE=config.settings.local` e aponta Postgres/Redis/Mailhog para `127.0.0.1` (portas publicadas pelo Compose: Postgres **5439**, Redis **6399**).
-5. Aponta `REFERENCE_URL`, `FRONT_URL` e `BODY_URL` para Llama/Ollama em **http://127.0.0.1:11434** (serviço no host; o serviço `ollama` no Compose está comentado).
+5. Aponta `REFERENCE_URL`, `FRONT_URL` e `BODY_URL` para Llama/Ollama em **http://127.0.0.1:11434** (porta publicada pelo serviço `ollama` do `local.yml`). Esses três endereços são a IA local. `REFERENCE_REMOTE_URL` é o Ollama do SciELO e vale só para referências; front e body não o utilizam, porque não é possível saber se o texto do manuscrito é inédito.
 6. Se existir `../packtools` ao lado do repositório, instala-o em modo editable no venv.
 7. Aguarda o Postgres, executa `migrate` e inicia `runserver_plus` em http://localhost:8000 (host `0.0.0.0`, porta **8000**).
 

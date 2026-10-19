@@ -67,6 +67,29 @@ def test_http_provider_chat_success(llama_settings):
     assert kwargs["headers"] == {}
 
 
+def test_mark_body_stays_on_local_when_scielo_ollama_is_configured(
+    llama_settings, settings
+):
+    settings.REFERENCE_REMOTE_ENABLED = True
+    settings.REFERENCE_REMOTE_URL = "http://scielo-ollama.example:11434"
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {"message": {"content": '{"sections":[]}'}}
+
+    with patch("body.providers.http.requests.post", return_value=mock_response) as post:
+        from body.marking import mark_body
+
+        mark_body("Introdução\nTexto inédito do experimento")
+
+    assert post.call_count == 1
+    assert post.call_args[0][0] == "http://llama.example:11434/api/chat"
+    sent = post.call_args.kwargs["json"]["messages"][-1]["content"]
+    assert "Texto inédito do experimento" in sent
+    provider = Provider([], None)
+    assert provider.origin == "local"
+    assert provider.url == "http://llama.example:11434"
+
+
 def test_http_provider_unavailable(llama_settings):
     with patch(
         "body.providers.http.requests.post",

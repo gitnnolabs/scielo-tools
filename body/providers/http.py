@@ -32,6 +32,7 @@ class Provider:
         if not getattr(settings, "BODY_ENABLED", True):
             raise BodyLlamaDisabledError("Body Llama is disabled.")
 
+        self.origin = "local"
         self.url = (getattr(settings, "BODY_URL", "") or "").rstrip("/")
         if not self.url:
             raise BodyLlamaMisconfiguredError(
