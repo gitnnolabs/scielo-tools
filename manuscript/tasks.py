@@ -28,7 +28,7 @@ def persist_front_result(result, manuscript_id, user_id=None):
     except Exception as exc:
         fail_run(manuscript_id, "front", exc)
         raise
-    complete_run(manuscript_id, "front")
+    complete_run(manuscript_id, "front", endpoints="local")
 
 
 @shared_task
@@ -42,12 +42,17 @@ def persist_body_result(result, manuscript_id, user_id=None):
     except Exception as exc:
         fail_run(manuscript_id, "body", exc)
         raise
-    complete_run(manuscript_id, "body")
+    complete_run(manuscript_id, "body", endpoints="local")
 
 
 @shared_task
 def persist_back_result(result, manuscript_id, user_id=None):
-    items = result if isinstance(result, list) else []
+    endpoints = ""
+    if isinstance(result, dict) and "items" in result:
+        items = result.get("items") or []
+        endpoints = result.get("endpoints") or ""
+    else:
+        items = result if isinstance(result, list) else []
     try:
         manuscript = Manuscript.objects.get(pk=manuscript_id)
         save_references_items(manuscript, items, user=_user_from_id(user_id))
@@ -57,7 +62,7 @@ def persist_back_result(result, manuscript_id, user_id=None):
     except Exception as exc:
         fail_run(manuscript_id, "back", exc)
         raise
-    complete_run(manuscript_id, "back")
+    complete_run(manuscript_id, "back", endpoints=endpoints)
 
 
 @shared_task

@@ -2,6 +2,7 @@ from celery import shared_task
 from django.contrib.auth import get_user_model
 
 from reference.data_utils import resolve_references_result
+from reference.marking import reference_endpoints_label, reset_reference_endpoints
 
 TASK_SOFT_TIME_LIMIT = 30 * 60
 TASK_TIME_LIMIT = 31 * 60
@@ -28,9 +29,11 @@ def mark_reference_texts_task(self, texts, user_id=None, output_type="json"):
     user = None
     if user_id is not None:
         user = get_user_model().objects.filter(pk=user_id).first()
-    return resolve_references_result(
+    reset_reference_endpoints()
+    items = resolve_references_result(
         texts,
         user=user,
         output_type=output_type,
         on_progress=on_progress,
     )
+    return {"items": items, "endpoints": reference_endpoints_label()}

@@ -317,6 +317,7 @@ class ManuscriptMarkingRun(models.Model):
     error = models.TextField(_("Error"), blank=True)
     started_at = models.DateTimeField(_("Started at"), null=True, blank=True)
     finished_at = models.DateTimeField(_("Finished at"), null=True, blank=True)
+    endpoints = models.CharField(_("Endpoints"), max_length=16, blank=True)
 
     class Meta:
         verbose_name = _("Manuscript marking run")

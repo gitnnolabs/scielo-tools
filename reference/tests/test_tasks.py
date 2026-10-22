@@ -13,7 +13,8 @@ def test_mark_reference_texts_task_reports_progress(monkeypatch):
     monkeypatch.setattr("reference.tasks.resolve_references_result", fake_resolve)
     monkeypatch.setattr(mark_reference_texts_task, "update_state", MagicMock())
     result = mark_reference_texts_task.run(["Smith J. Nature. 2024."])
-    assert result[0]["data"]["reftype"] == "journal"
+    assert result["items"][0]["data"]["reftype"] == "journal"
+    assert result["endpoints"] == ""
     calls = mark_reference_texts_task.update_state.call_args_list
     states = [call.kwargs.get("state") for call in calls]
     assert "PROGRESS" in states

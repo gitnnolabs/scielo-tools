@@ -32,6 +32,7 @@ class Provider:
         if not getattr(settings, "FRONT_ENABLED", True):
             raise FrontLlamaDisabledError("Front Llama is disabled.")
 
+        self.origin = "local"
         self.url = (getattr(settings, "FRONT_URL", "") or "").rstrip("/")
         if not self.url:
             raise FrontLlamaMisconfiguredError(

@@ -38,16 +38,22 @@ def prepare_run(manuscript, part):
             "error": "",
             "started_at": now,
             "finished_at": None,
+            "endpoints": "",
         },
     )
     return run
 
 
-def complete_run(manuscript_id, part):
+def complete_run(manuscript_id, part, endpoints=""):
+    fields = {
+        "status": ManuscriptMarkingRunStatus.DONE,
+        "error": "",
+        "finished_at": timezone.now(),
+    }
+    if endpoints:
+        fields["endpoints"] = endpoints
     ManuscriptMarkingRun.objects.filter(manuscript_id=manuscript_id, part=part).update(
-        status=ManuscriptMarkingRunStatus.DONE,
-        error="",
-        finished_at=timezone.now(),
+        **fields
     )
 
 
@@ -170,11 +176,13 @@ def _part_payload(run):
             "status": ManuscriptMarkingRunStatus.IDLE,
             "percent": None,
             "error": None,
+            "endpoints": None,
         }
     payload = {
         "status": run.status,
         "percent": None,
         "error": run.error or None,
+        "endpoints": run.endpoints or None,
     }
     if run.status in ACTIVE_STATUSES:
         payload["percent"] = 0
