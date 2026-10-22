@@ -23,10 +23,27 @@ _UNSET = object()
 def parse_marked_choice(choice):
     if isinstance(choice, dict):
         return choice
-    try:
-        return json.loads(choice)
-    except (TypeError, json.JSONDecodeError):
+    if not isinstance(choice, str):
         return {"raw": choice}
+    text = choice.strip()
+    if not text:
+        return {"raw": choice}
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        parsed = None
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            parsed = json.loads(text[start : end + 1])
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            parsed = None
+    return {"raw": choice}
 
 
 def is_non_reference(marked_data):
@@ -72,11 +89,9 @@ meses = {
     "janeiro": "01",
     "fevereiro": "02",
     "março": "03",
-    "abril": "04",
     "maio": "05",
     "junho": "06",
     "julho": "07",
-    "agosto": "08",
     "setembro": "09",
     "outubro": "10",
     "novembro": "11",
@@ -106,7 +121,6 @@ def append_citation_pages(root, pages):
         etree.SubElement(root, "elocation-id").text = value
         return
     etree.SubElement(root, "fpage").text = value
-    etree.SubElement(root, "lpage").text = value
 
 
 def append_fpage_lpage(root, json_reference):
@@ -114,8 +128,6 @@ def append_fpage_lpage(root, json_reference):
         etree.SubElement(root, "fpage").text = str(json_reference["fpage"])
         if "lpage" in json_reference:
             etree.SubElement(root, "lpage").text = str(json_reference["lpage"])
-        else:
-            etree.SubElement(root, "lpage").text = str(json_reference["fpage"])
         return True
     if "pages" in json_reference:
         append_citation_pages(root, json_reference["pages"])
@@ -654,7 +666,9 @@ def resolve_reference_result(
     }
 
 
-def resolve_references_result(references, user=None, output_type="json"):
+def resolve_references_result(
+    references, user=None, output_type="json", on_progress=None
+):
     citations = parse_reference_list(references)
     pending = []
     pending_seen = set()
@@ -669,7 +683,11 @@ def resolve_references_result(references, user=None, output_type="json"):
 
     premarked = {}
     if pending:
-        for citation, content in zip(pending, mark_reference_texts(pending)):
+        if on_progress is None:
+            marked_pending = mark_reference_texts(pending)
+        else:
+            marked_pending = mark_reference_texts(pending, on_progress=on_progress)
+        for citation, content in zip(pending, marked_pending, strict=False):
             premarked[citation] = (
                 parse_marked_choice(content) if content is not None else None
             )
