@@ -52,7 +52,7 @@ cp -r .envs.example/.production .envs/.production
 docker compose -f production.yml up -d --build
 ```
 
-O `production.yml` usa as imagens de `compose/production` (Gunicorn na porta 5000, Postgres, Redis, Celery e Ollama). O Traefik publica 80 e 443. O projeto Compose é `scielo_tools_production`, separado do `local.yml`. `FRONT_URL`, `BODY_URL` e `REFERENCE_URL` apontam para `http://ollama:11434`.
+O `production.yml` usa as imagens de `compose/production` (Gunicorn na porta 5000, Postgres, Redis, Celery e Ollama). O Traefik publica 80 e 443. O projeto Compose é `scielo_tools_production`, separado do `local.yml`. `FRONT_URL`, `BODY_URL` e `REFERENCE_URL` apontam para `http://ollama:11434`. O contentor Ollama, local e de produção, puxa `qwen3.5:latest` ao arrancar (`OLLAMA_MODEL`). A primeira subida espera o download; o volume guarda o modelo.
 
 ### Opção 2 — Django no host com `./local.sh`
 

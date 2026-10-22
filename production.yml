@@ -3,9 +3,12 @@ name: scielo_tools_production
 x-django: &django
   image: scielo_tools_production_django
   depends_on:
-    - postgres
-    - redis
-    - ollama
+    postgres:
+      condition: service_started
+    redis:
+      condition: service_started
+    ollama:
+      condition: service_healthy
   env_file:
     - ./.envs/.production/.django
     - ./.envs/.production/.postgres
@@ -37,10 +40,21 @@ services:
     container_name: scielo_tools_production_redis
 
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: ./compose/ollama
+      pull: false
+    image: scielo_tools_production_ollama
     container_name: scielo_tools_production_ollama
+    environment:
+      OLLAMA_MODEL: qwen3.5:latest
     volumes:
       - production_ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "OLLAMA_HOST=127.0.0.1:11434 ollama show \"$$OLLAMA_MODEL\" >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 900s
 
   traefik:
     build:
@@ -61,10 +75,14 @@ services:
     <<: *django
     container_name: scielo_tools_production_celeryworker
     depends_on:
-      - postgres
-      - redis
-      - ollama
-      - django
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      ollama:
+        condition: service_healthy
+      django:
+        condition: service_started
     ports: []
     command: /start-celeryworker
 
@@ -72,10 +90,14 @@ services:
     <<: *django
     container_name: scielo_tools_production_celerybeat
     depends_on:
-      - postgres
-      - redis
-      - ollama
-      - django
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      ollama:
+        condition: service_healthy
+      django:
+        condition: service_started
     ports: []
     command: /start-celerybeat
 

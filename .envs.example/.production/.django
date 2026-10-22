@@ -25,7 +25,7 @@ SENTRY_DSN=
 # ------------------------------------------------------------------------------
 REFERENCE_ENABLED=true
 REFERENCE_URL=http://ollama:11434
-REFERENCE_MODEL=llama3.2:3b
+REFERENCE_MODEL=qwen3.5:latest
 # REFERENCE_TOKEN=
 # REFERENCE_TIMEOUT=300
 # REFERENCE_BATCH_SIZE=10
@@ -45,7 +45,7 @@ REFERENCE_MODEL=llama3.2:3b
 # ------------------------------------------------------------------------------
 FRONT_ENABLED=true
 FRONT_URL=http://ollama:11434
-FRONT_MODEL=llama3.2:3b
+FRONT_MODEL=qwen3.5:latest
 # FRONT_TOKEN=
 # FRONT_TIMEOUT=300
 # FRONT_NUM_CTX=8192
@@ -61,7 +61,7 @@ FRONT_MODEL=llama3.2:3b
 # ------------------------------------------------------------------------------
 BODY_ENABLED=true
 BODY_URL=http://ollama:11434
-BODY_MODEL=llama3.2:3b
+BODY_MODEL=qwen3.5:latest
 # BODY_TOKEN=
 # BODY_TIMEOUT=300
 # BODY_NUM_CTX=32768
