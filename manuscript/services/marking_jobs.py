@@ -20,11 +20,20 @@ MARKING_PARTS = (
     ManuscriptMarkingPart.FRONT,
     ManuscriptMarkingPart.BODY,
     ManuscriptMarkingPart.BACK,
+    ManuscriptMarkingPart.VALIDATE,
+    ManuscriptMarkingPart.PDF,
+    ManuscriptMarkingPart.HTML,
+    ManuscriptMarkingPart.PACKAGE,
 )
 QUEUE_ORDER = (
     ManuscriptMarkingPart.BACK,
     ManuscriptMarkingPart.FRONT,
     ManuscriptMarkingPart.BODY,
+)
+POST_MARKING_PARTS = (
+    ManuscriptMarkingPart.VALIDATE,
+    ManuscriptMarkingPart.PDF,
+    ManuscriptMarkingPart.HTML,
 )
 
 
@@ -191,12 +200,101 @@ def enqueue_back(manuscript, user=None, allow_queued=False):
     return run
 
 
-def advance_marking_queue(manuscript_id, user_id=None):
+def _refresh_package_run_status(manuscript_id):
+    runs = {
+        run.part: run
+        for run in ManuscriptMarkingRun.objects.filter(
+            manuscript_id=manuscript_id,
+            part__in=(ManuscriptMarkingPart.PDF, ManuscriptMarkingPart.HTML),
+        )
+    }
+    pdf_run = runs.get(ManuscriptMarkingPart.PDF)
+    html_run = runs.get(ManuscriptMarkingPart.HTML)
+    if pdf_run is None and html_run is None:
+        return
+    statuses = [run.status for run in (pdf_run, html_run) if run is not None]
+    if any(status in ACTIVE_STATUSES for status in statuses):
+        return
+    if any(status == ManuscriptMarkingRunStatus.ERROR for status in statuses):
+        errors = [
+            run.error for run in (pdf_run, html_run) if run is not None and run.error
+        ]
+        fail_run(
+            manuscript_id,
+            ManuscriptMarkingPart.PACKAGE,
+            "; ".join(errors) or "Package generation failed",
+        )
+        return
+    if all(status == ManuscriptMarkingRunStatus.DONE for status in statuses):
+        complete_run(manuscript_id, ManuscriptMarkingPart.PACKAGE)
+
+
+def enqueue_post_marking_tasks(manuscript, user=None):
+    from manuscript.services.assembly import refresh_assembled_xml
+    from manuscript.tasks import (
+        fail_marking_run,
+        generate_manuscript_html_task,
+        generate_manuscript_pdf_task,
+        run_manuscript_validation_task,
+    )
+
+    xml = refresh_assembled_xml(manuscript, allow_partial=True)
+    if not (xml or manuscript.assembled_xml or "").strip():
+        return None
+    if (
+        manuscript.marking_runs.filter(
+            part__in=POST_MARKING_PARTS,
+            status__in=ACTIVE_STATUSES,
+        )
+        .exclude(task_id="")
+        .exists()
+    ):
+        return None
+    user_id = user.pk if user is not None else None
+    val_run = prepare_run(manuscript, ManuscriptMarkingPart.VALIDATE)
+    pdf_run = prepare_run(manuscript, ManuscriptMarkingPart.PDF)
+    html_run = prepare_run(manuscript, ManuscriptMarkingPart.HTML)
+    pkg_run = prepare_run(manuscript, ManuscriptMarkingPart.PACKAGE)
+
+    dispatched = []
+    for run, part, task in (
+        (val_run, ManuscriptMarkingPart.VALIDATE, run_manuscript_validation_task),
+        (pdf_run, ManuscriptMarkingPart.PDF, generate_manuscript_pdf_task),
+        (html_run, ManuscriptMarkingPart.HTML, generate_manuscript_html_task),
+    ):
+        try:
+            async_result = task.apply_async(
+                kwargs={
+                    "manuscript_id": manuscript.pk,
+                    "user_id": user_id,
+                },
+                link_error=fail_marking_run.s(
+                    manuscript_id=manuscript.pk,
+                    part=part,
+                ),
+            )
+            run.task_id = async_result.id or ""
+            run.save(update_fields=["task_id"])
+            dispatched.append(run)
+        except Exception as exc:
+            fail_run(manuscript.pk, part, exc)
+    if pdf_run.task_id or html_run.task_id:
+        pkg_run.task_id = pdf_run.task_id or html_run.task_id
+        pkg_run.save(update_fields=["task_id"])
+    else:
+        _refresh_package_run_status(manuscript.pk)
+    return dispatched
+
+
+def advance_marking_queue(manuscript_id, user_id=None, trigger_post_marking=False):
     manuscript = Manuscript.objects.filter(pk=manuscript_id).first()
     if manuscript is None:
         return None
     if (
-        manuscript.marking_runs.filter(status__in=ACTIVE_STATUSES)
+        manuscript.marking_runs.filter(
+            part__in=QUEUE_ORDER,
+            status__in=ACTIVE_STATUSES,
+        )
         .exclude(task_id="")
         .exists()
     ):
@@ -206,6 +304,7 @@ def advance_marking_queue(manuscript_id, user_id=None):
         user = get_user_model().objects.filter(pk=user_id).first()
     queued_parts = set(
         manuscript.marking_runs.filter(
+            part__in=QUEUE_ORDER,
             status=ManuscriptMarkingRunStatus.PENDING,
             task_id="",
         ).values_list("part", flat=True)
@@ -223,6 +322,14 @@ def advance_marking_queue(manuscript_id, user_id=None):
         except MarkingError as exc:
             fail_run(manuscript.pk, part, exc)
             continue
+    if (
+        trigger_post_marking
+        and not manuscript.marking_runs.filter(
+            part__in=QUEUE_ORDER,
+            status__in=ACTIVE_STATUSES,
+        ).exists()
+    ):
+        enqueue_post_marking_tasks(manuscript, user=user)
     return None
 
 
@@ -248,7 +355,7 @@ def _part_payload(run):
         }
     payload = {
         "status": run.status,
-        "percent": None,
+        "percent": 100 if run.status == ManuscriptMarkingRunStatus.DONE else None,
         "error": run.error or None,
         "endpoints": run.endpoints or None,
     }
@@ -268,6 +375,67 @@ def _part_payload(run):
     return payload
 
 
+def _package_payload(runs, manuscript):
+    pkg_payload = _part_payload(runs.get(ManuscriptMarkingPart.PACKAGE))
+    pdf_payload = _part_payload(runs.get(ManuscriptMarkingPart.PDF))
+    html_payload = _part_payload(runs.get(ManuscriptMarkingPart.HTML))
+    sub_statuses = [pdf_payload["status"], html_payload["status"]]
+    if any(status in ACTIVE_STATUSES for status in sub_statuses):
+        pkg_payload["status"] = (
+            ManuscriptMarkingRunStatus.RUNNING
+            if ManuscriptMarkingRunStatus.RUNNING in sub_statuses
+            else ManuscriptMarkingRunStatus.PENDING
+        )
+        pdf_pct = (
+            100
+            if pdf_payload["status"] == ManuscriptMarkingRunStatus.DONE
+            else (pdf_payload["percent"] or 0)
+        )
+        html_pct = (
+            100
+            if html_payload["status"] == ManuscriptMarkingRunStatus.DONE
+            else (html_payload["percent"] or 0)
+        )
+        pkg_payload["percent"] = int((pdf_pct + html_pct) / 2)
+    elif all(status == ManuscriptMarkingRunStatus.DONE for status in sub_statuses):
+        pkg_payload["status"] = ManuscriptMarkingRunStatus.DONE
+        pkg_payload["percent"] = 100
+    elif any(status == ManuscriptMarkingRunStatus.ERROR for status in sub_statuses):
+        pkg_payload["status"] = ManuscriptMarkingRunStatus.ERROR
+        errors = [
+            item["error"] for item in (pdf_payload, html_payload) if item.get("error")
+        ]
+        if errors:
+            pkg_payload["error"] = "; ".join(errors)
+    elif (
+        pkg_payload["status"] == ManuscriptMarkingRunStatus.IDLE
+        and manuscript.sps_package_id
+    ):
+        pkg_payload["status"] = ManuscriptMarkingRunStatus.DONE
+        pkg_payload["percent"] = 100
+    return pkg_payload
+
+
 def marking_status_payload(manuscript):
     runs = {run.part: run for run in manuscript.marking_runs.all()}
-    return {part: _part_payload(runs.get(part)) for part in MARKING_PARTS}
+    payload = {part: _part_payload(runs.get(part)) for part in MARKING_PARTS}
+    if (
+        payload[ManuscriptMarkingPart.VALIDATE]["status"]
+        == ManuscriptMarkingRunStatus.IDLE
+        and manuscript.validation_id
+    ):
+        validation = manuscript.validation
+        if validation is not None and validation.status == "done":
+            payload[ManuscriptMarkingPart.VALIDATE]["status"] = (
+                ManuscriptMarkingRunStatus.DONE
+            )
+            payload[ManuscriptMarkingPart.VALIDATE]["percent"] = 100
+        elif validation is not None and validation.status == "error":
+            payload[ManuscriptMarkingPart.VALIDATE]["status"] = (
+                ManuscriptMarkingRunStatus.ERROR
+            )
+            payload[ManuscriptMarkingPart.VALIDATE]["error"] = (
+                validation.error_message or None
+            )
+    payload[ManuscriptMarkingPart.PACKAGE] = _package_payload(runs, manuscript)
+    return payload
